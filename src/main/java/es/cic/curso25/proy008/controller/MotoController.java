@@ -24,68 +24,68 @@ public class MotoController {
                // instancia
     private MotoService motoService;
 
-    /**
+    /**───────────────────────────────────────────────────────────────
      * CREATE (Post)
      * Crea una entidad de Moto.
      * 
      * @param Moto
      * @return Entidad moto creada + código 201 (Created + Location)
-     */
+     * ───────────────────────────────────────────────────────────────*/
     @PostMapping
     public Moto crearMoto(@RequestBody Moto moto) {
         return motoService.create(moto);
     }
 
-    /**
+    /**───────────────────────────────────────────────────────────────
      * READ (Get)
      * Devuelve la entidad de moto que coincida con el ID proporcionado
      * 
      * @param id
-     * @return entidad Moto, o un error en caso de que no exista ninguna moto con
-     *         ese id
-     */
+     * @return entidad Moto, o un error en caso de que no exista ninguna 
+     *         moto con ese id
+     * ───────────────────────────────────────────────────────────────*/
     public Moto get(long id) {
         return motoService.getSelect(id);
     }
 
-    /**
+    /**───────────────────────────────────────────────────────────────
      * READ (Get)
      * Obtiene una lista de motos
      * 
      * @return lista de todas las motos
-     */
+     * ───────────────────────────────────────────────────────────────*/
     @GetMapping
     public List<Moto> get() {
         return motoService.get();
     }
 
-    /**
+    /**───────────────────────────────────────────────────────────────
      * UPDATE (Put)
      * Metodo para actualizar Entidad moto
      * 
      * @param moto
      * @param id
-     */
+     * ───────────────────────────────────────────────────────────────*/
     @PutMapping
     public void update(@RequestBody Moto moto, long id) {
         motoService.update(moto, id);
     }
 
-    /**
+    /**───────────────────────────────────────────────────────────────
      * DELETE (Delete)
      * Metodo para borrar motos en base a un id
      * 
      * @param id
-     */
+     * ───────────────────────────────────────────────────────────────*/
     @DeleteMapping("/{id}")
     public void delete(@PathVariable long id) {
         motoService.delete(id);
     }
 
-    /**
+    /**───────────────────────────────────────────────────────────────
      * DELETE (Delete)
      * Borra todas las entidades de Moto Existentes
-     */
+     * ───────────────────────────────────────────────────────────────*/
     @DeleteMapping()
     public void deleteAll() {
         motoService.deleteAll();
