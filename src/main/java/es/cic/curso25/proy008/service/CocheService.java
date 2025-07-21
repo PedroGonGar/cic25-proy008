@@ -14,14 +14,14 @@ import es.cic.curso25.proy008.repository.CocheRepository;
 
 /**
  * ╔═══════════════════════════════════════════════════════════════════════════╗
- * ║ 🛠 C O C H E S E R V I C E ║
+ * ║ 🛠 C O C H E S E R V I C E                                                ║
  * ╠═══════════════════════════════════════════════════════════════════════════╣
- * ║ · Capa de NEGOCIO entre el Controller y el Repository. ║
- * ║ · Aquí vive la lógica que **no** pertenece ni al endpoint (HTTP) ║
- * ║ ni al acceso a datos (JPA). ║
- * ║ · Con @Service Spring lo registra como componente y puede inyectarlo. ║
- * ║ · Sin @Transactional: cada método ejecuta su propia transacción ║
- * ║ (Spring Data lo abre al llamar a save/find…). ║
+ * ║ · Capa de NEGOCIO entre el Controller y el Repository.                    ║
+ * ║ · Aquí vive la lógica que **no** pertenece ni al endpoint (HTTP)          ║
+ * ║ ni al acceso a datos (JPA).                                               ║
+ * ║ · Con @Service Spring lo registra como componente y puede inyectarlo.     ║
+ * ║ · Sin @Transactional: cada método ejecuta su propia transacción           ║
+ * ║ (Spring Data lo abre al llamar a save/find…).                             ║
  * ╚═══════════════════════════════════════════════════════════════════════════╝
  */
 

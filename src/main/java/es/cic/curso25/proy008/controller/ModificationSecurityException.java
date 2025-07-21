@@ -3,11 +3,11 @@ package es.cic.curso25.proy008.controller;
 /**
  * ╔════════════════════════════════════════════════════════════════╗
  * ║           ✋  MODIFICATION‑SECURITY‑EXCEPTION (DOMINIO)         ║
- * ╠════════════════════════════════════════════════════════════════╣
- * ║ ‑ Se lanza cuando un usuario intenta **CREAR** (POST) un       ║
- * ║   recurso que en realidad ya tiene ID → está “modificando”     ║
- * ║   algo que debería haberse creado sin identificador.           ║
- * ║ ‑ Extiende {@link RuntimeException} para no obligar a poner    ║
+ * ╠════════════════════════════════════════════════════════════════ ╣
+ * ║ ‑ Se lanza cuando un usuario intenta **CREAR** (POST) un        ║
+ * ║   recurso que en realidad ya tiene ID → está “modificando”      ║
+ * ║   algo que debería haberse creado sin identificador.            ║
+ * ║ ‑ Extiende {@link RuntimeException} para no obligar a poner     ║
  * ║   `throws` ni try‑catch en todas las llamadas (unchecked).      ║
  * ║ ‑ Es capturada globalmente por {@code ControllerAdviceException}║
  * ║   y convertida en HTTP 400 Bad Request.                         ║
