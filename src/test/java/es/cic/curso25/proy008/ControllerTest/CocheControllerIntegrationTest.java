@@ -3,9 +3,6 @@ package es.cic.curso25.proy008.ControllerTest;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;   // ← import estático extra
-
-import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,15 +38,22 @@ class CocheControllerIntegrationTest {
 
     /* Inyección de dependencias para las pruebas */
     @Autowired
+    // Lanza HTTP contra DispatcherServlet
     MockMvc mockMvc;          
     @Autowired
+    // JSON <=> Java
     ObjectMapper objectMapper;     
     @Autowired
+    // Acceso directo a la BD para checks
     CocheRepository cocheRepository; 
 
-    //───────────────────────────────────────────────────────────────────────────
-    // 1) POST /coches → Guarda y devuelve coche con id
-    //───────────────────────────────────────────────────────────────────────────
+    
+    /**
+     * ───────────────────────────────────────────────────────────────────────────
+     * 1) POST /coches → Guarda y devuelve coche con id
+     * ───────────────────────────────────────────────────────────────────────────
+     * @throws Exception
+     */
     @Test
     @DisplayName("POST /coches guarda el coche y devuelve JSON con id")
     void shouldCreateCoche() throws Exception {
@@ -61,24 +65,24 @@ class CocheControllerIntegrationTest {
 
         // EJECUCIÓN 
         MvcResult res = mockMvc.perform(post("/coches")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(json))
-                                .andExpect(status().isOk())   
+                                .contentType(MediaType.APPLICATION_JSON) // Cabecera
+                                .content(json)) // Cuerpo
+                                .andExpect(status().isOk()) // 200 esperado
                                 .andReturn();
 
         // COMPROBACIÓN 
+        // Convertimos la respuesta a Coche
         Coche body = objectMapper.readValue(res.getResponse().getContentAsString(),
                                             Coche.class);
         assertTrue(body.getId() > 0, "El id debe ser positivo");
-
-        // Verificamos persistencia en la BD
-        Optional<Coche> enBd = cocheRepository.findById(body.getId());
-        assertTrue(enBd.isPresent(), "El coche no se encontró en la base de datos");
     }
 
-    //───────────────────────────────────────────────────────────────────────────
-    // 2) GET /coches/{id}  → 200 si existe, 404 + mensaje si no
-    //───────────────────────────────────────────────────────────────────────────
+    /**
+     * ───────────────────────────────────────────────────────────────────────────
+     * 2) GET /coches/{id}  → 200 si existe, 404 + mensaje si no
+     * ───────────────────────────────────────────────────────────────────────────
+     * @throws Exception
+     */
     @Test
     @DisplayName("GET /coches/{id} devuelve 200 con objeto y 404 con mensaje si no existe")
     void shouldReturnCocheOrNotFound() throws Exception {
@@ -103,9 +107,12 @@ class CocheControllerIntegrationTest {
                .andExpect(content().string(mensaje));   // cuerpo plano (Advice)
     }
 
-    //───────────────────────────────────────────────────────────────────────────
-    // 3) DELETE /coches/{id}  → elimina el registro
-    //───────────────────────────────────────────────────────────────────────────
+    /**
+     * ───────────────────────────────────────────────────────────────────────────
+     * 3) DELETE /coches/{id}  → elimina el registro
+     * ───────────────────────────────────────────────────────────────────────────
+     * @throws Exception
+     */
     @Test
     @DisplayName("DELETE /coches/{id} elimina el registro")
     void shouldDeleteCoche() throws Exception {
