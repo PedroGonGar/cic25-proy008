@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import es.cic.curso25.proy008.controller.ModificationSecurityException;
+import es.cic.curso25.proy008.exception.CocheException;
 import es.cic.curso25.proy008.exception.MotoException;
 import es.cic.curso25.proy008.model.Moto;
 import es.cic.curso25.proy008.repository.MotoRepository;
@@ -102,7 +103,20 @@ public class MotoService {
      *         ───────────────────────────────────────────────────────────────
      */
     public Moto update(Moto moto) {
-        return motoRepository.save(moto);
+
+        //Si el ID proporcionado es null
+        if (moto.getId() == null){
+            //Lanzamos una Excepcion de seguridad
+            throw new ModificationSecurityException("El id no puede ser nulo");
+        //Si el ID ya existe
+        }else if (!motoRepository.existsById(moto.getId())){
+            //Lanzamos una MotoException
+            throw new MotoException(moto.getId());
+        //En el resto de casos
+        }else{
+            //Devolvemos la moto creada
+            return motoRepository.save(moto);
+        }
     }
 
     // ····DELETE····
@@ -115,7 +129,12 @@ public class MotoService {
      *           ───────────────────────────────────────────────────────────────
      */
     public void delete(long id) {
-        motoRepository.deleteById(id);
+
+        if (!motoRepository.existsById(id)){
+            throw new MotoException(id);
+        }else{
+            motoRepository.deleteById(id);
+        }
     }
 
     /**

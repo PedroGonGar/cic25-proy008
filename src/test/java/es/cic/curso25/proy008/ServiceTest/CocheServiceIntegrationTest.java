@@ -156,7 +156,7 @@ class CocheServiceIntegrationTest {
     @DisplayName("lanza 400 si el coche no lleva ID")
     void shouldRejectUpdateWithoutId() {
         Coche sinId = new Coche("N/A", 0);
-
+        
         assertThrows(ModificationSecurityException.class,
                      () -> cocheService.update(sinId));
     }

@@ -11,10 +11,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.springframework.http.MediaType;
 
 //import java.util.Optional;
 
@@ -31,10 +35,10 @@ import jakarta.transaction.Transactional;
 public class MotoControllerIntegrationTest {
 
         @Autowired
-        MockMvc mockMvc;
+        private MockMvc mockMvc;
 
         @Autowired
-        MotoRepository motoRepository;
+        private MotoRepository motoRepository;
 
         /**
          * ───────────────────────────────────────────────────────────────
@@ -46,12 +50,18 @@ public class MotoControllerIntegrationTest {
          *               implementar la lectura/escritura de Json
          *               -JsonParser
          *               -JsonGenerator
-         *               ───────────────────────────────────────────────────────────────
+         *───────────────────────────────────────────────────────────────
          */
         @Autowired
-        ObjectMapper objectMapper;
+        private ObjectMapper objectMapper;
 
         // ──────────────────────────CRUD─────────────────────────────────────
+
+        /*
+         * =======================================================================
+         * 1) C R E A T E
+         * =====================================================================
+         */
 
         /**
          * ───────────────────────────────────────────────────────────────
@@ -59,7 +69,7 @@ public class MotoControllerIntegrationTest {
          * Metodo para probar el Método de crear del controller
          * 
          * @throws Exception
-         *                   ───────────────────────────────────────────────────────────────
+         *───────────────────────────────────────────────────────────────
          */
         @Test
         @DisplayName("POST /motos Guarda la moto y devuelve JSON ocn id")
@@ -101,7 +111,7 @@ public class MotoControllerIntegrationTest {
          * Si NO existe -> Code 404 + mensaje
          * 
          * @throws Exception
-         *                   ────────────────────────────────────────────────────────────────────────
+         *────────────────────────────────────────────────────────────────────────
          */
         @Test
         void testGetSinID() throws Exception {
@@ -124,6 +134,16 @@ public class MotoControllerIntegrationTest {
 
         }
 
+        /**
+         * ───────────────────────────────────────────────────────────────────────────
+         * Test GET de /motos.
+         * Comprueba que se devuelva un codigo 200 en caso de estar correcto,
+         * y que en caso de no estarlo devuelva un error 400, acompañado de un string
+         * definido en la clase de MotoException, con la ayuda del controller Advice
+         * 
+         * @throws Exception
+         *───────────────────────────────────────────────────────────────────────────
+         */
         @Test
         @DisplayName("GET /motos/{id} devuelve 200 con objeto y 404 si no encuentra referencia")
         void shoudReturnMotoOrNotFound() throws Exception {
@@ -158,42 +178,78 @@ public class MotoControllerIntegrationTest {
                                 .andExpect(content().string(expectedString));
         }
 
-        // /**───────────────────────────────────────────────────────────────────────
-        // * Test del metodo de Controller Get con el constructor que no necesita ID
-        // * @throws Exception
-        // *───────────────────────────────────────────────────────────────────────*/
-        // @Test
-        // void testGetConID() throws Exception{
+        /**
+         * ───────────────────────────────────────────────────────────────────────────
+         * Test PUT de /motos. Comprueba que se actualize una moto ya existente
+         * 
+         * @throws Exception
+         *───────────────────────────────────────────────────────────────────────────
+         */
+        @Test
+        void shouldUpdateMoto() throws Exception {
+                // PEC
 
-        // //Creamos una Moto
-        // Moto moto = new Moto();
-        // moto.setMarca("Honda");
-        // moto.setPotencia(80);
-        // moto.setTipo("Naked");
-        // moto.setEncendido(false);
+                // PREPARAMOS
+                // Creamos una Moto
+                Moto moto = new Moto();
+                moto.setMarca("Honda");
+                moto.setPotencia(80);
+                moto.setTipo("Naked");
+                moto.setEncendido(false);
 
-        // //Guardamos la moto en la BBDD
-        // moto = motoRepository.save(moto);
+                // Guardamos la moto en la BBDD
+                moto = motoRepository.save(moto);
 
-        // //Creamos un mapper para traducir json.
-        // //Lo guardamos en un Stirng
-        // String motoJson = objectMapper.writeValueAsString(moto);
+                // Modificamos La moto que tenemos para inyectarla
+                moto.setMarca("Yamaha");
+                moto.setTipo("Trial");
+                // Parseamos a Json para inyectarlo con Mock
+                String jsonString = objectMapper.writeValueAsString(moto);
 
-        // //Hacemos un get
-        // mockMvc.perform(get("/motos/1", moto.getId()))
-        // .andExpect(status().isOk())
-        // .andExpect(jsonPath("$.id").value(moto.getId()))
-        // .andExpect(jsonPath("$.marca").value("Honda"))
-        // .andExpect(jsonPath("$.tipo").value("Naked"));
+                // EJECUTAMOS Y COMPROBAMOS (andExpect)
+                mockMvc.perform(put("/motos")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonString))
+                                .andExpect(jsonPath("$.id").value(moto.getId()))
+                                .andExpect(jsonPath("$.marca").value(moto.getMarca()))
+                                .andExpect(jsonPath("$.tipo").value(moto.getTipo()))
+                                .andExpect(status().isOk());
 
-        // long idInexistente = moto.getId()+999;//Cogemos el id y le sumamos 100 para
-        // que no coincida
-        // String espectedString = "No se ha encontrado una moto con el id " +
-        // idInexistente;
+        }
 
-        // mockMvc.perform(get("/motos/999", idInexistente))
-        // .andExpect(status().isNotFound())
-        // .andExpect(content().string(espectedString));
-        // }
+        /**
+         * ───────────────────────────────────────────────────────────────────────────
+         * Metodo que comprueba la funcionalidad de borrar una moto en caso de que esta
+         * exista
+         * @throws Exception
+         *───────────────────────────────────────────────────────────────────────────
+         */
+        @Test
+        @DisplayName("DELETE /motos/{id} Elimina el registro")
+        void shouldDeleteCoche() throws Exception {
+
+                // PEC
+
+                // PREPARAMOS
+                // Creamos una Moto
+                Moto moto = new Moto();
+                moto.setMarca("Honda");
+                moto.setPotencia(80);
+                moto.setTipo("Naked");
+                moto.setEncendido(false);
+
+                // Guardamos la moto en la BBDD
+                moto = motoRepository.save(moto);
+
+                // EJECUTAMOS
+                // Le decimos con mock que nos haga el delete
+                mockMvc.perform(delete("/motos/{id}", moto.getId()))
+                                .andExpect(status().isOk());
+
+                // COMPROBAMOS
+                assertTrue((motoRepository.findById(moto.getId()).isEmpty()),
+                                "La moto ha sido eliminada");
+
+        }
 
 }

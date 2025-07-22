@@ -14,19 +14,41 @@ public class Moto {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    
+
     @Version
     private Long version; // Define el nombre de la columna en la base de datos
 
-    @Column(name = "potencia") 
+    @Column(name = "potencia")
     private double potencia;
-    
+
     @Column(length = 20)
     private String marca;
 
     private boolean encendido;
 
     private String tipo;
+
+    /*
+     * ────────────────────────────
+     * CONSTRUCTORES
+     * ───────────────────────────
+     */
+
+    public Moto() {
+
+    }
+
+    public Moto(double potencia, String marca, String tipo) {
+        this.potencia = potencia;
+        this.marca = marca;
+        this.tipo = tipo;
+    }
+
+    /*
+     * ────────────────────────────
+     * GETTERS & SETTERS
+     * ───────────────────────────
+     */
 
     public String getTipo() {
         return tipo;

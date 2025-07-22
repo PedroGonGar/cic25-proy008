@@ -73,8 +73,8 @@ public class MotoController {
      * @param id
      * ───────────────────────────────────────────────────────────────*/
     @PutMapping
-    public void update(@RequestBody Moto moto) {
-        motoService.update(moto);
+    public Moto update(@RequestBody Moto moto) {
+        return motoService.update(moto);
     }
 
     /**───────────────────────────────────────────────────────────────
