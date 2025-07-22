@@ -89,6 +89,7 @@ public class CocheService {
      * ──────────────────────────────────────────────────────────────
      */
     public List<Coche> get() {
+        LOGGER.info("Obteniendo listado de coches: ");
         return cocheRepository.findAll(); // SELECT * FROM coche
     }
 
@@ -101,6 +102,7 @@ public class CocheService {
      * ──────────────────────────────────────────────────────────────
      */
     public Coche create(Coche coche) {
+        LOGGER.info("Creando coche: ");
         if (coche.getId() != null) {
             throw new ModificationSecurityException(
                     "No se puede crear un coche con id existente: " + coche.getId());
@@ -114,7 +116,7 @@ public class CocheService {
      * ───────────────────────────────────────────────────────────────
      */
     public void update(Coche coche) {
-
+        LOGGER.info("Actualizando listado de coches: ");
         /**
          * 1) Validación de integridad 
          * El endpoint PUT debe recibir *siempre* un id.
@@ -151,7 +153,7 @@ public class CocheService {
      * ───────────────────────────────────────────────────────────────
      */
     public void delete(long id) {
-
+        LOGGER.info("Borrando coche: ");
         /**
          * 1) Verificación de existencia
          * Si no hay fila con ese id devolvemos 404 Not Found.
