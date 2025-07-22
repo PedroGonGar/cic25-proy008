@@ -21,20 +21,18 @@ import es.cic.curso25.proy008.repository.CocheRepository;
 
 /**
  * ╔═══════════════════════════════════════════════════════════════════════════╗
- * ║ 🔬 C O C H E C O N T R O L L E R T E S T ║
+ * ║ 🔬 C O C H E C O N T R O L L E R T E S T                                  ║
  * ╠═══════════════════════════════════════════════════════════════════════════╣
- * ║ INTEGRACIÓN COMPLETA ║
- * ║ – Usa @SpringBootTest: levanta todo el contenedor Spring, incluida la ║
- * ║ BD embebida H2 y el DispatcherServlet. ║
- * ║ – @AutoConfigureMockMvc inyecta un {@link MockMvc} que simula peticiones ║
- * ║ HTTP contra los endpoints reales, sin necesidad de arrancar Tomcat. ║
- * ║ – @Transactional hace rollback al terminar cada @Test → BD limpia. ║
+ * ║ INTEGRACIÓN COMPLETA                                                      ║
+ * ║ – Usa @SpringBootTest: levanta todo el contenedor Spring, incluida la     ║
+ * ║ BD embebida H2 y el DispatcherServlet.                                    ║
+ * ║ – @AutoConfigureMockMvc inyecta un {@link MockMvc} que simula peticiones  ║
+ * ║ HTTP contra los endpoints reales, sin necesidad de arrancar Tomcat.       ║
  * ╚═══════════════════════════════════════════════════════════════════════════╝
  */
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 class CocheControllerIntegrationTest {
 
     /* Inyección de dependencias para las pruebas */
