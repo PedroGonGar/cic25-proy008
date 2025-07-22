@@ -2,7 +2,6 @@ package es.cic.curso25.proy008.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,16 +12,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.cic.curso25.proy008.model.Moto;
+
 import es.cic.curso25.proy008.service.MotoService;
 
 @RestController // Le decimos a Spring que es una clase de controlador
-@RequestMapping("/moto") // Prefijo para todas las rutas de este controlador
+@RequestMapping("/motos") // Prefijo para todas las rutas de este controlador
 public class MotoController {
 
-    // Nos creamos un usuario Service con Autowired
-    @Autowired // Buscame en @BEAN uno de los uno de los campos definidos y creame una
-               // instancia
-    private MotoService motoService;
+    // // Nos creamos un usuario Service con Autowired
+    // @Autowired // Buscame en @BEAN uno de los uno de los campos definidos y creame una
+    //            // instancia
+    private final MotoService motoService;
+
+    public MotoController(MotoService motoService) {
+        this.motoService = motoService;
+    }
+
 
     /**───────────────────────────────────────────────────────────────
      * CREATE (Post)
@@ -68,8 +73,8 @@ public class MotoController {
      * @param id
      * ───────────────────────────────────────────────────────────────*/
     @PutMapping
-    public void update(@RequestBody Moto moto, long id) {
-        motoService.update(moto, id);
+    public void update(@RequestBody Moto moto) {
+        motoService.update(moto);
     }
 
     /**───────────────────────────────────────────────────────────────
