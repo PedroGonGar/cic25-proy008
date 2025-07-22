@@ -62,4 +62,10 @@ public class ControllerAdviceException {
     public String handleCocheNotFound(CocheException ex) {
         return ex.getMessage(); // 404 + «Coche con id … no encontrado.»
     }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(MotoException.class)
+    public String handleMotoNotFound(MotoException ex) {
+        return ex.getMessage(); // 404 + «Coche con id … no encontrado.»
+    }
 }
