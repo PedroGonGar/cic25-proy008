@@ -37,13 +37,15 @@ class CocheControllerIntegrationTest {
     /* Inyección de dependencias para las pruebas */
     @Autowired
     // Lanza HTTP contra DispatcherServlet
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
+
     @Autowired
     // JSON <=> Java
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
+    
     @Autowired
     // Acceso directo a la BD para checks
-    CocheRepository cocheRepository;
+    private CocheRepository cocheRepository;
 
     /**
      * ───────────────────────────────────────────────────────────────────────────
