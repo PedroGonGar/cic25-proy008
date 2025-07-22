@@ -1,24 +1,36 @@
 package es.cic.curso25.proy008.ControllerTest;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.contains;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Optional;
+//import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.cic.curso25.proy008.controller.MotoController;
 import es.cic.curso25.proy008.model.Moto;
 import es.cic.curso25.proy008.repository.MotoRepository;
+import jakarta.transaction.Transactional;
 
-@WebMvcTest(MotoController.class) //Lo vinculamos a la clase MotoController
+@SpringBootTest
+@AutoConfigureMockMvc
+@Transactional
+//@WebMvcTest(MotoController.class) //Lo vinculamos a la clase MotoController
 public class MotoControllerIntegrationTest {
 
     @Autowired
@@ -48,42 +60,51 @@ public class MotoControllerIntegrationTest {
      * @throws Exception
      *───────────────────────────────────────────────────────────────*/
     @Test
-    void testCreate() throws Exception{
+    @DisplayName("POST /motos Guarda la moto y devuelve JSON ocn id")
+    void shouldCreateCoche() throws Exception {
 
+        //METODOLOGIA PEC 
+
+        //PREPARACIÓN
         //Creamos una Moto
         Moto moto = new Moto();
         moto.setMarca("Honda");
         moto.setPotencia(80);
         moto.setTipo("Naked");
         moto.setEncendido(false);
-        
+
         //El metodo utilizado nos sirve para parsear cualquier
         //Valor java a String 
         String motoJson = objectMapper.writeValueAsString(moto);
 
-        mockMvc.perform(post("/moto")
+        //EJECUCIÓN
+        MvcResult res = mockMvc.perform(post("/motos")
                 .contentType("application/json")
                 .content(motoJson))
                 .andExpect(status().isOk())
-                .andExpect(result -> {
-                                String respuesta = result.getResponse().getContentAsString();
-                                Moto registroCreado = objectMapper.readValue(respuesta, Moto.class);
-                                assertTrue(registroCreado.getId() > 0, "El valor debe ser mayor que 0");
+                .andReturn();
 
-                                Optional<Moto> registroRealmenteCreado = motoRepository.findById(registroCreado.getId());
-                                assertTrue(registroRealmenteCreado.isPresent());
-                             });
+        //COMPROBACIÓN
+        Moto body = objectMapper.readValue(res.getResponse().getContentAsString(), Moto.class);
+
+        assertTrue(body.getId() > 0, "El id tiene que ser positivo");
+
 
     }
 
     /**───────────────────────────────────────────────────────────────────────
      * READ (Get)
      * Test del metodo de Controller Get con el constructor que no necesita ID
+     * SI existe -> Code 200
+     * Si NO existe -> Code 404 + mensaje
      * @throws Exception
      *────────────────────────────────────────────────────────────────────────*/
     @Test
     void testGetSinID() throws Exception{
 
+        //PEC
+
+        //PREPARAMOS
         //Creamos una Moto
         Moto moto = new Moto();
         moto.setMarca("Honda");
@@ -95,23 +116,55 @@ public class MotoControllerIntegrationTest {
         //Lo guardamos en un Stirng
         String motoJson = objectMapper.writeValueAsString(moto);
 
-
         //Hacemos un Post de una Moto
-        mockMvc.perform(post("/moto")
+        mockMvc.perform(post("/motos")
                 .content("application/json")
                 .content(motoJson))
                 .andExpect(status().isOk());
 
         //Hacemos un get 
-        mockMvc.perform(get("/moto"))
+        mockMvc.perform(get("/motos"))
                 .andExpect(status().isOk());
 
     }
 
-     /**
+    @Test 
+    void shoudReturnMotoOrNotFound()throws Exception{
+
+        //PEC
+
+        //PREPARAMOS
+        //Creamos una Moto
+        Moto moto = new Moto();
+        moto.setMarca("Honda");
+        moto.setPotencia(80);
+        moto.setTipo("Naked");
+        moto.setEncendido(false);
+
+        //Guardamos la moto en la BBDD
+        moto = motoRepository.save(moto);
+
+        //EJECUTAMOS
+        //1) Existe la moto
+        mockMvc.perform(get("/motos/{id}", moto.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(moto.getId()))
+        .andExpect(jsonPath("$.marca").value("Honda"))
+        .andExpect(jsonPath("$.tipo").value("Naked"));
+
+        //2) No existe la moto
+        long idInexistente = moto.getId()+100;//Cogemos el id y le sumamos 100 para que no coincida
+        String especteString = ("No se ha encontrado una moto con el id " + idInexistente);
+
+        mockMvc.perform(get("motos/{id}", idInexistente))
+        .andExpect(status().isNotFound())
+        .andExpect(content().string(especteString));
+    }
+
+     /**───────────────────────────────────────────────────────────────────────
      * Test del metodo de Controller Get con el constructor que no necesita ID
      * @throws Exception
-     */
+     *───────────────────────────────────────────────────────────────────────*/
     @Test
     void testGetConID() throws Exception{
 
@@ -128,13 +181,13 @@ public class MotoControllerIntegrationTest {
 
 
         //Hacemos un Post de una Moto
-        mockMvc.perform(post("/moto")
+        mockMvc.perform(post("/motos")
                 .content("application/json")
                 .content(motoJson))
                 .andExpect(status().isOk());
 
         //Hacemos un get 
-        mockMvc.perform(get("/moto/1"))
+        mockMvc.perform(get("/motos/1"))
                 .andExpect(status().isOk());
 
     }

@@ -27,8 +27,12 @@ public class MotoService {
      * ───────────────────────────────────────────────────────────────*/
     private final static Logger LOGGER = LoggerFactory.getLogger(Moto.class);
 
-    @Autowired // Me hago una Instancia de Repository automaticamente
-    private MotoRepository motoRepository;
+    //@Autowired // Me hago una Instancia de Repository automaticamente
+    private final MotoRepository motoRepository;
+
+    public MotoService (MotoRepository motoRepository){
+        this.motoRepository = motoRepository;
+    }
 
     // CRUD
 
@@ -86,7 +90,7 @@ public class MotoService {
      * @param id
      * @return Moto actualizada
      * ───────────────────────────────────────────────────────────────*/
-    public Moto update(Moto moto, long id) {
+    public Moto update(Moto moto) {
         return motoRepository.save(moto);
     }
 
