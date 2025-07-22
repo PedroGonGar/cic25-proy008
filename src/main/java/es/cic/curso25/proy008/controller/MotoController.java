@@ -44,8 +44,8 @@ public class MotoController {
      * @return entidad Moto, o un error en caso de que no exista ninguna 
      *         moto con ese id
      * ───────────────────────────────────────────────────────────────*/
-    @GetMapping
-     public Moto get(long id) {
+    @GetMapping("/{id}")
+     public Moto get(@PathVariable long id) {
         return motoService.getSelect(id);
     }
 
