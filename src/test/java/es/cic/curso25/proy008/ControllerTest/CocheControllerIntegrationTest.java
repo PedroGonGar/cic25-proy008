@@ -37,7 +37,7 @@ import es.cic.curso25.proy008.repository.CocheRepository;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class CocheControllerTest {
+class CocheControllerIntegrationTest {
 
     /* Inyección de dependencias para las pruebas */
     @Autowired
