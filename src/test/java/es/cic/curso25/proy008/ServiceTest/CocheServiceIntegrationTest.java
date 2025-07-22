@@ -17,12 +17,6 @@ import es.cic.curso25.proy008.repository.CocheRepository;
 import es.cic.curso25.proy008.service.CocheService;
 
 /**
- * Pruebas de integración para CocheService.
- * Verifica la correcta interacción entre el servicio y la base de datos.
- * Usa una base de datos H2 en memoria y transacciones que se revierten después
- * de cada test.
- */
-/**
  * ╔═══════════════════════════════════════════════════════════════════════════╗
  * ║ 🔬  C O C H E S E R V I C E   –   I N T E G R A T I O N   T E S T S       ║
  * ╠═══════════════════════════════════════════════════════════════════════════╣
