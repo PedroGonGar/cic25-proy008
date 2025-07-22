@@ -22,13 +22,13 @@ import es.cic.curso25.proy008.repository.CocheRepository;
 
 /**
  * ╔═══════════════════════════════════════════════════════════════════════════╗
- * ║ 🔬 C O C H E C O N T R O L L E R T E S T ║
+ * ║                🔬 C O C H E C O N T R O L L E R T E S T                   ║
  * ╠═══════════════════════════════════════════════════════════════════════════╣
- * ║ INTEGRACIÓN COMPLETA ║
- * ║ – Usa @SpringBootTest: levanta todo el contenedor Spring, incluida la ║
- * ║ BD embebida H2 y el DispatcherServlet. ║
- * ║ – @AutoConfigureMockMvc inyecta un {@link MockMvc} que simula peticiones ║
- * ║ HTTP contra los endpoints reales, sin necesidad de arrancar Tomcat. ║
+ * ║ INTEGRACIÓN COMPLETA                                                      ║
+ * ║ – Usa @SpringBootTest: levanta todo el contenedor Spring, incluida la     ║
+ * ║ BD embebida H2 y el DispatcherServlet.                                    ║
+ * ║ – @AutoConfigureMockMvc inyecta un {@link MockMvc} que simula peticiones  ║
+ * ║ HTTP contra los endpoints reales, sin necesidad de arrancar Tomcat.       ║
  * ╚═══════════════════════════════════════════════════════════════════════════╝
  */
 
