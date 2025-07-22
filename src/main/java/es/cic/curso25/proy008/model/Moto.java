@@ -12,9 +12,9 @@ public class Moto {
     private Long id;
     
     @Version
-    private Long version;
+    private Long version; // Define el nombre de la columna en la base de datos
 
-    @Column(name = "potencia") // Define el nombre de la columna en la base de datos
+    @Column(name = "potencia") 
     private double potencia;
     
     @Column(length = 20)
