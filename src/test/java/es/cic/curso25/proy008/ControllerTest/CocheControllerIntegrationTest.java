@@ -1,5 +1,6 @@
 package es.cic.curso25.proy008.ControllerTest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -20,13 +21,13 @@ import es.cic.curso25.proy008.repository.CocheRepository;
 
 /**
  * ╔═══════════════════════════════════════════════════════════════════════════╗
- * ║ 🔬 C O C H E C O N T R O L L E R T E S T                                  ║
+ * ║ 🔬 C O C H E C O N T R O L L E R T E S T ║
  * ╠═══════════════════════════════════════════════════════════════════════════╣
- * ║ INTEGRACIÓN COMPLETA                                                      ║
- * ║ – Usa @SpringBootTest: levanta todo el contenedor Spring, incluida la     ║
- * ║ BD embebida H2 y el DispatcherServlet.                                    ║
- * ║ – @AutoConfigureMockMvc inyecta un {@link MockMvc} que simula peticiones  ║
- * ║ HTTP contra los endpoints reales, sin necesidad de arrancar Tomcat.       ║
+ * ║ INTEGRACIÓN COMPLETA ║
+ * ║ – Usa @SpringBootTest: levanta todo el contenedor Spring, incluida la ║
+ * ║ BD embebida H2 y el DispatcherServlet. ║
+ * ║ – @AutoConfigureMockMvc inyecta un {@link MockMvc} que simula peticiones ║
+ * ║ HTTP contra los endpoints reales, sin necesidad de arrancar Tomcat. ║
  * ╚═══════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -42,7 +43,7 @@ class CocheControllerIntegrationTest {
     @Autowired
     // JSON <=> Java
     private ObjectMapper objectMapper;
-    
+
     @Autowired
     // Acceso directo a la BD para checks
     private CocheRepository cocheRepository;
@@ -116,23 +117,27 @@ class CocheControllerIntegrationTest {
      * @throws Exception
      */
     @Test
-    @DisplayName("PUT /coches actualiza el registro y devuelve 200")
+    @DisplayName("PUT /coches actualiza en BD (sin cuerpo de respuesta)")
     void shouldUpdateCoche() throws Exception {
 
-        // Persistimos un coche inicial
-        Coche coche = new Coche("Seat", 75); 
-        coche = cocheRepository.save(coche); 
+        // 1. Persistimos un coche inicial
+        Coche coche = cocheRepository.save(new Coche("Seat", 75));
 
-        // Preparamos el JSON modificado
-        coche.setMarca("Volkswagen"); 
+        // 2. Preparamos el JSON con los nuevos valores
+        coche.setMarca("Volkswagen");
         coche.setPotencia(110);
         String json = objectMapper.writeValueAsString(coche);
 
-        // Ejecutamos el PUT /coches
-        mockMvc.perform(put("/coches") 
+        // 3. Ejecutamos el PUT -> 200 vacío
+        mockMvc.perform(put("/coches")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().isOk()); 
+                .andExpect(status().isOk());
+
+        // 4. Verificamos contra la base de datos
+        Coche actualizado = cocheRepository.findById(coche.getId()).orElseThrow();
+        assertEquals("Volkswagen", actualizado.getMarca());
+        assertEquals(110, actualizado.getPotencia());
     }
 
     /**

@@ -84,8 +84,9 @@ public class CocheController {
      * – Actualiza un coche existente........................ 200 OK
      * ──────────────────────────────────────────────────────────────*/
     @PutMapping
-    public void update(@RequestBody Coche coche) {
+    public Coche update(@RequestBody Coche coche) {
         cocheService.update(coche);
+        return cocheService.get(coche.getId());
     }
 
     /**
