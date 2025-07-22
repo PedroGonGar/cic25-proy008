@@ -47,9 +47,13 @@ class CocheControllerIntegrationTest {
     // Acceso directo a la BD para checks
     CocheRepository cocheRepository; 
 
-    //───────────────────────────────────────────────────────────────────────────
-    // 1) POST /coches → Guarda y devuelve coche con id
-    //───────────────────────────────────────────────────────────────────────────
+    
+    /**
+     * ───────────────────────────────────────────────────────────────────────────
+     * 1) POST /coches → Guarda y devuelve coche con id
+     * ───────────────────────────────────────────────────────────────────────────
+     * @throws Exception
+     */
     @Test
     @DisplayName("POST /coches guarda el coche y devuelve JSON con id")
     void shouldCreateCoche() throws Exception {
@@ -73,9 +77,12 @@ class CocheControllerIntegrationTest {
         assertTrue(body.getId() > 0, "El id debe ser positivo");
     }
 
-    //───────────────────────────────────────────────────────────────────────────
-    // 2) GET /coches/{id}  → 200 si existe, 404 + mensaje si no
-    //───────────────────────────────────────────────────────────────────────────
+    /**
+     * ───────────────────────────────────────────────────────────────────────────
+     * 2) GET /coches/{id}  → 200 si existe, 404 + mensaje si no
+     * ───────────────────────────────────────────────────────────────────────────
+     * @throws Exception
+     */
     @Test
     @DisplayName("GET /coches/{id} devuelve 200 con objeto y 404 con mensaje si no existe")
     void shouldReturnCocheOrNotFound() throws Exception {
@@ -100,9 +107,12 @@ class CocheControllerIntegrationTest {
                .andExpect(content().string(mensaje));   // cuerpo plano (Advice)
     }
 
-    //───────────────────────────────────────────────────────────────────────────
-    // 3) DELETE /coches/{id}  → elimina el registro
-    //───────────────────────────────────────────────────────────────────────────
+    /**
+     * ───────────────────────────────────────────────────────────────────────────
+     * 3) DELETE /coches/{id}  → elimina el registro
+     * ───────────────────────────────────────────────────────────────────────────
+     * @throws Exception
+     */
     @Test
     @DisplayName("DELETE /coches/{id} elimina el registro")
     void shouldDeleteCoche() throws Exception {
