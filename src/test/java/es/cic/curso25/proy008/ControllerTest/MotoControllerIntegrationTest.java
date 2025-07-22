@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Optional;
@@ -75,6 +78,11 @@ public class MotoControllerIntegrationTest {
 
     }
 
+    /**───────────────────────────────────────────────────────────────────────
+     * READ (Get)
+     * Test del metodo de Controller Get con el constructor que no necesita ID
+     * @throws Exception
+     *────────────────────────────────────────────────────────────────────────*/
     @Test
     void testGetSinID() throws Exception{
 
@@ -90,9 +98,45 @@ public class MotoControllerIntegrationTest {
         String motoJson = objectMapper.writeValueAsString(moto);
 
 
+        //Hacemos un Post de una Moto
         mockMvc.perform(post("/moto")
                 .content("application/json")
                 .content(motoJson))
+                .andExpect(status().isOk());
+
+        //Hacemos un get 
+        mockMvc.perform(get("/moto"))
+                .andExpect(status().isOk());
+
+    }
+
+     /**
+     * Test del metodo de Controller Get con el constructor que no necesita ID
+     * @throws Exception
+     */
+    @Test
+    void testGetConID() throws Exception{
+
+        //Creamos una Moto
+        Moto moto = new Moto();
+        moto.setMarca("Honda");
+        moto.setPotencia(80);
+        moto.setTipo("Naked");
+        moto.setEncendido(false);
+
+        //Creamos un mapper para traducir json.
+        //Lo guardamos en un Stirng
+        String motoJson = objectMapper.writeValueAsString(moto);
+
+
+        //Hacemos un Post de una Moto
+        mockMvc.perform(post("/moto")
+                .content("application/json")
+                .content(motoJson))
+                .andExpect(status().isOk());
+
+        //Hacemos un get 
+        mockMvc.perform(get("/moto/1"))
                 .andExpect(status().isOk());
 
     }
