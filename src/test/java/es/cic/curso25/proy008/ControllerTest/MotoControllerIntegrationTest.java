@@ -112,15 +112,11 @@ public class MotoControllerIntegrationTest {
         moto.setTipo("Naked");
         moto.setEncendido(false);
 
+        moto = motoRepository.save(moto);
+
         //Creamos un mapper para traducir json.
         //Lo guardamos en un Stirng
         String motoJson = objectMapper.writeValueAsString(moto);
-
-        //Hacemos un Post de una Moto
-        mockMvc.perform(post("/motos")
-                .content("application/json")
-                .content(motoJson))
-                .andExpect(status().isOk());
 
         //Hacemos un get 
         mockMvc.perform(get("/motos"))
@@ -129,6 +125,7 @@ public class MotoControllerIntegrationTest {
     }
 
     @Test 
+    @DisplayName("GET /motos/{id} devuelve 200 con objeto y 404 si no encuentra referencia")
     void shoudReturnMotoOrNotFound()throws Exception{
 
         //PEC
@@ -153,12 +150,12 @@ public class MotoControllerIntegrationTest {
         .andExpect(jsonPath("$.tipo").value("Naked"));
 
         //2) No existe la moto
-        long idInexistente = moto.getId()+100;//Cogemos el id y le sumamos 100 para que no coincida
-        String especteString = ("No se ha encontrado una moto con el id " + idInexistente);
+        long idInexistente = moto.getId()+999;//Cogemos el id y le sumamos 100 para que no coincida
+        String espectedString = "No se ha encontrado una moto con el id " + idInexistente;
 
-        mockMvc.perform(get("motos/{id}", idInexistente))
+        mockMvc.perform(get("/motos/{id}", idInexistente))
         .andExpect(status().isNotFound())
-        .andExpect(content().string(especteString));
+        .andExpect(content().string(espectedString));
     }
 
      /**───────────────────────────────────────────────────────────────────────
@@ -175,22 +172,30 @@ public class MotoControllerIntegrationTest {
         moto.setTipo("Naked");
         moto.setEncendido(false);
 
+        //Guardamos la moto en la BBDD
+        moto = motoRepository.save(moto);
+
         //Creamos un mapper para traducir json.
         //Lo guardamos en un Stirng
         String motoJson = objectMapper.writeValueAsString(moto);
 
-
-        //Hacemos un Post de una Moto
-        mockMvc.perform(post("/motos")
-                .content("application/json")
-                .content(motoJson))
-                .andExpect(status().isOk());
-
         //Hacemos un get 
-        mockMvc.perform(get("/motos/1"))
-                .andExpect(status().isOk());
+        mockMvc.perform(get("/motos/1", moto.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(moto.getId()))
+        .andExpect(jsonPath("$.marca").value("Honda"))
+        .andExpect(jsonPath("$.tipo").value("Naked"));
 
+
+         long idInexistente = moto.getId()+999;//Cogemos el id y le sumamos 100 para que no coincida
+        String espectedString = "No se ha encontrado una moto con el id " + idInexistente;
+
+        mockMvc.perform(get("/motos/999", idInexistente))
+        .andExpect(status().isNotFound())
+        .andExpect(content().string(espectedString));
     }
+
+
 
 
 }

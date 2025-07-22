@@ -51,7 +51,7 @@ public class MotoController {
      * ───────────────────────────────────────────────────────────────*/
     @GetMapping("/{id}")
      public Moto get(@PathVariable long id) {
-        return motoService.getSelect(id);
+        return motoService.get(id);
     }
 
     /**───────────────────────────────────────────────────────────────
