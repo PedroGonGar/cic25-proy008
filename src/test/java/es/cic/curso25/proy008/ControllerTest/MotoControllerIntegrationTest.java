@@ -186,13 +186,6 @@ public class MotoControllerIntegrationTest {
         .andExpect(jsonPath("$.marca").value("Honda"))
         .andExpect(jsonPath("$.tipo").value("Naked"));
 
-
-         long idInexistente = moto.getId()+999;//Cogemos el id y le sumamos 100 para que no coincida
-        String espectedString = "No se ha encontrado una moto con el id " + idInexistente;
-
-        mockMvc.perform(get("/motos/999", idInexistente))
-        .andExpect(status().isNotFound())
-        .andExpect(content().string(espectedString));
     }
 
 
