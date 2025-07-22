@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,6 +69,7 @@ class CocheControllerIntegrationTest {
         MvcResult res = mockMvc.perform(post("/coches")
                 .contentType(MediaType.APPLICATION_JSON) // Cabecera
                 .content(json)) // Cuerpo
+                .andDo(print())
                 .andExpect(status().isOk()) // 200 esperado
                 .andReturn();
 
@@ -98,7 +100,8 @@ class CocheControllerIntegrationTest {
         mockMvc.perform(get("/coches/{id}", coche.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(coche.getId()))
-                .andExpect(jsonPath("$.marca").value("BMW"));
+                .andExpect(jsonPath("$.marca").value("BMW"))
+                .andDo(print());
 
         // ── Caso 2: NO existe
         long idInexistente = coche.getId() + 999;
@@ -106,7 +109,8 @@ class CocheControllerIntegrationTest {
 
         mockMvc.perform(get("/coches/{id}", idInexistente))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(mensaje)); // cuerpo plano (Advice)
+                .andExpect(content().string(mensaje)) // cuerpo plano (Advice)
+                .andDo(print()); 
     }
 
     /**
@@ -132,6 +136,7 @@ class CocheControllerIntegrationTest {
         mockMvc.perform(put("/coches")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
+                .andDo(print())
                 .andExpect(status().isOk());
 
         // 4. Verificamos contra la base de datos
@@ -157,6 +162,7 @@ class CocheControllerIntegrationTest {
 
         // Ejecutamos la petición DELETE
         mockMvc.perform(delete("/coches/{id}", coche.getId()))
+                .andDo(print())
                 .andExpect(status().isOk());
 
         // Afirmamos que ya no existe
