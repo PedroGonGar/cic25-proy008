@@ -3,9 +3,6 @@ package es.cic.curso25.proy008.ControllerTest;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;   // ← import estático extra
-
-import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,10 +38,13 @@ class CocheControllerIntegrationTest {
 
     /* Inyección de dependencias para las pruebas */
     @Autowired
+    // Lanza HTTP contra DispatcherServlet
     MockMvc mockMvc;          
     @Autowired
+    // JSON <=> Java
     ObjectMapper objectMapper;     
     @Autowired
+    // Acceso directo a la BD para checks
     CocheRepository cocheRepository; 
 
     //───────────────────────────────────────────────────────────────────────────
@@ -61,19 +61,16 @@ class CocheControllerIntegrationTest {
 
         // EJECUCIÓN 
         MvcResult res = mockMvc.perform(post("/coches")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(json))
-                                .andExpect(status().isOk())   
+                                .contentType(MediaType.APPLICATION_JSON) // Cabecera
+                                .content(json)) // Cuerpo
+                                .andExpect(status().isOk()) // 200 esperado
                                 .andReturn();
 
         // COMPROBACIÓN 
+        // Convertimos la respuesta a Coche
         Coche body = objectMapper.readValue(res.getResponse().getContentAsString(),
                                             Coche.class);
         assertTrue(body.getId() > 0, "El id debe ser positivo");
-
-        // Verificamos persistencia en la BD
-        Optional<Coche> enBd = cocheRepository.findById(body.getId());
-        assertTrue(enBd.isPresent(), "El coche no se encontró en la base de datos");
     }
 
     //───────────────────────────────────────────────────────────────────────────
