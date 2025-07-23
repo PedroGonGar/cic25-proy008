@@ -1,13 +1,13 @@
 package es.cic.curso25.proy008.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import es.cic.curso25.proy008.exception.ConcesionarioException;
 import es.cic.curso25.proy008.model.Concesionario;
 import es.cic.curso25.proy008.repository.ConcesionarioRepository;
 import jakarta.transaction.Transactional;
@@ -20,9 +20,10 @@ public class ConcesionarioService {
     @Autowired
     private ConcesionarioRepository concesionarioRepository;
 
-    public Optional<Concesionario> get(Long id) {
+    public Concesionario get(Long id) {
         LOGGER.info(String.format("Buscando el concesionario con id: %d", id));
-        return concesionarioRepository.findById(id);
+        return concesionarioRepository.findById(id)
+                .orElseThrow(() -> new ConcesionarioException(id));
     }
 
     public List<Concesionario> get() {
