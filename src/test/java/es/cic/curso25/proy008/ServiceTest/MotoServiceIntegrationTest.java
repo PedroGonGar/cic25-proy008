@@ -66,12 +66,13 @@ class MotoServiceIntegrationTest {
         assertTrue(motoRepository.existsById(res.getId()),
                     "La moto deberia existir en la BBDD");
      }
-
-     /**─────────────────────────────────────────────────────────────
+     
+     //─────────────────────────────────────────────────────────────
+     /**
       * Este metodo nos va a crear una moto pasandole un id, 
       * lo que generará una excepción en el método. Nuestro objetivo
-      * es obtenerla.
-      *─────────────────────────────────────────────────────────────*/
+      * es obtenerla.*/
+      //─────────────────────────────────────────────────────────────
      @Test
      @DisplayName("Lanza una excepción cuando la moto venga con un ID")
      void shouldRejectCreateWithID(){
