@@ -30,7 +30,6 @@ import jakarta.transaction.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 // @WebMvcTest(MotoController.class) //Lo vinculamos a la clase MotoController
 public class MotoControllerIntegrationTest {
 
