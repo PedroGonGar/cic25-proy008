@@ -1,10 +1,6 @@
 package es.cic.curso25.proy008.ServiceTest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
@@ -36,7 +32,7 @@ import es.cic.curso25.proy008.service.MotoService;
  */
 @SpringBootTest
 @Transactional
-public class MotoServiceIntegrationTest {
+class MotoServiceIntegrationTest {
 
 
     /*─────────────────────────────────────────────────────────────

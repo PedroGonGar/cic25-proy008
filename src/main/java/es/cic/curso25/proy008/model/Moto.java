@@ -8,6 +8,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
+@Entity
+@Table(name = "moto") // Nombre exacto de la tabla
 public class Moto {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
