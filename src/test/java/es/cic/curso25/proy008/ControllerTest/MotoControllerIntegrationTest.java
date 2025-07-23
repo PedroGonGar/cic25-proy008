@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.cic.curso25.proy008.model.Moto;
 import es.cic.curso25.proy008.repository.MotoRepository;
-import jakarta.transaction.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
