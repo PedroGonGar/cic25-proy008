@@ -1,5 +1,90 @@
 package es.cic.curso25.proy008.model;
 
 public class Moto {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
+    @Version
+    private Long version; // Define el nombre de la columna en la base de datos
+
+    @Column(name = "potencia")
+    private double potencia;
+
+    @Column(length = 20)
+    private String marca;
+
+    private boolean encendido;
+
+    private String tipo;
+
+    /*
+     * ────────────────────────────
+     * CONSTRUCTORES
+     * ───────────────────────────
+     */
+
+    public Moto() {
+
+    }
+
+    public Moto(double potencia, String marca, String tipo) {
+        this.potencia = potencia;
+        this.marca = marca;
+        this.tipo = tipo;
+    }
+
+    /*
+     * ────────────────────────────
+     * GETTERS & SETTERS
+     * ───────────────────────────
+     */
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public double getPotencia() {
+        return potencia;
+    }
+
+    public void setPotencia(double potencia) {
+        this.potencia = potencia;
+    }
+
+    public String getMarca() {
+        return marca;
+    }
+
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
+
+    public boolean isEncendido() {
+        return encendido;
+    }
+
+    public void setEncendido(boolean encendido) {
+        this.encendido = encendido;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
 }
