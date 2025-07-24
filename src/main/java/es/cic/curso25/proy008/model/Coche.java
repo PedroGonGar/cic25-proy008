@@ -1,178 +1,222 @@
 package es.cic.curso25.proy008.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
+import jakarta.persistence.*;
 
 /**
- * ╔════════════════════════════════════════════════════════════════╗
- * ║                            🚗  COCHE                           ║
- * ╠════════════════════════════════════════════════════════════════╣
- * ║  Entidad JPA que representa la tabla «coche» en la BD H2.      ║
- * ║  Cada instancia se convierte en una fila.                      ║
- * ║                                                                ║
- * ║  NOTAS                                                         ║
- * ║  · Las anotaciones @Entity y @Table informan a Hibernate de    ║
- * ║    que esta clase debe persisitirse.                           ║
- * ║  · @Id + @GeneratedValue generan el ID automáticamente.        ║
- * ║  · @Version implementa bloqueo optimista (control de           ║
- * ║    concurrencia).                                              ║
- * ║  · Los getters/setters son necesarios para que JPA acceda a    ║
- * ║    los campos en tiempo de ejecución.                          ║
- * ╚════════════════════════════════════════════════════════════════╝
+ * Entidad JPA que representa un coche en el sistema de concesionarios.
+ * Cada instancia se corresponde con una fila de la tabla {@code coche}.
+ * <p>
+ * Se modela una relación Many-to-One con {@link Concesionario}, de modo que
+ * cada coche debe pertenecer obligatoriamente a un concesionario.
+ * </p>
+ * 
+ * @author Pedro González
+ * @version 1.0
+ * @since 1.0
  */
-
 @Entity
-@Table(name = "coche") // Nombre exacto de la tabla
+@Table(name = "coche")
 public class Coche {
 
-     /*────────────────────────────
-     *  PRIMARY KEY (Id autogen.)
-     *───────────────────────────*/
+    /**
+     * Identificador único de la entidad. Se genera automáticamente.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    
-    /*────────────────────────────
-     *  CONTROL DE CONCURRENCIA
-     *  Hibernate incrementa "version"
-     *  cada vez que hace UPDATE.
-     *───────────────────────────*/
+
+    /**
+     * Control de concurrencia optimista. Hibernate incrementa este valor
+     * en cada actualización para evitar sobrescrituras no intencionadas.
+     */
     @Version
     private Long version;
 
-    /*────────────────────────────
-     *  CAMPO POTENCIA
-     *  double ≈ FLOAT(53) en DB.
-     *───────────────────────────*/
-    @Column(name = "potencia") // Nombre de la columna distinto al de la propiedad
+    /**
+     * Potencia del motor, en CV (caballos de vapor).
+     * Se mapea a la columna {@code potencia} de tipo DOUBLE/FLOAT.
+     */
+    @Column(name = "potencia")
     private double potencia;
-    
-    /*────────────────────────────
-     *  CAMPO MARCA
-     *  Longitud máxima 20 chars.
-     *───────────────────────────*/
-    @Column(length = 20,
-            nullable = false)
+
+    /**
+     * Marca del coche. Longitud máxima de 20 caracteres y no puede ser nulo.
+     */
+    @Column(length = 20, nullable = false)
     private String marca;
 
-    /*────────────────────────────
-     *  CAMPO BOOLEANO
-     *  Hibernate lo mapea a BIT.
-     *───────────────────────────*/
+    /**
+     * Estado de encendido del motor.
+     * Hibernate lo mapea a un BIT/BOOLEAN en la base de datos.
+     */
     private boolean encendido = false;
 
     /**
-     * ————————————————————————
-     * Relación Many-to-One (lado "propietario")
-     * ————————————————————————
-    */ 
-    @ManyToOne(optional = false,
-               fetch = FetchType.LAZY)
-    @JoinColumn(name = "concesionario_id",
-                nullable = false)
+     * Concesionario al que pertenece este coche.
+     * Lado “propietario” de la relación Many-to-One.
+     * Nunca puede ser nulo.
+     */
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "concesionario_id", nullable = false)
     private Concesionario concesionario;
 
-     /*────────────────────────────
-     *  CONSTRUCTORES
-     *───────────────────────────*/
     /**
-     * Constructor sin argumentos requerido por JPA.
-     * Java lo crearía implícitamente, pero lo declaramos
-     * para que quede claro.
+     * Constructor vacío exigido por JPA.
+     * Permite que Hibernate cree instancias por reflexión.
      */
-    public Coche() {}
+    public Coche() {
 
-    // Constructor de conveniencia (no obligatorio).
+    }
+
+    /**
+     * Constructor de conveniencia para crear un coche ya asociado
+     * a un concesionario.
+     * 
+     * @param marca         Marca del coche. No nula.
+     * @param potencia      Potencia en CV.
+     * @param concesionario Concesionario propietario. No nulo.
+     */
     public Coche(String marca, double potencia, Concesionario concesionario) {
-        this.marca     = marca;
-        this.potencia  = potencia;
+        this.marca = marca;
+        this.potencia = potencia;
         this.encendido = false;
         this.concesionario = concesionario;
     }
 
-    /*────────────────────────────
-     *  GETTERS & SETTERS
-     *───────────────────────────*/
+    /**
+     * Obtiene el identificador único de este coche.
+     * 
+     * @return el {@code id} de la entidad, o {@code null} si aún no se ha persistido.
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Obtiene la versión de concurrencia de la entidad.
+     * 
+     * @return el valor de {@code version} para control optimista.
+     */
     public Long getVersion() {
         return version;
     }
 
+    /**
+     * Obtiene la potencia del coche en CV.
+     * 
+     * @return la potencia del motor.
+     */
     public double getPotencia() {
         return potencia;
     }
 
+    /**
+     * Actualiza la potencia del coche.
+     * 
+     * @param potencia la nueva potencia en CV.
+     */
     public void setPotencia(double potencia) {
         this.potencia = potencia;
     }
 
+    /**
+     * Obtiene la marca del coche.
+     * 
+     * @return la marca, con longitud máxima de 20 caracteres.
+     */
     public String getMarca() {
         return marca;
     }
 
+    /**
+     * Modifica la marca del coche.
+     * 
+     * @param marca nueva marca. No nula.
+     */
     public void setMarca(String marca) {
         this.marca = marca;
     }
 
+    /**
+     * Indica si el motor está encendido.
+     * 
+     * @return {@code true} si está encendido; {@code false} en caso contrario.
+     */
     public boolean isEncendido() {
         return encendido;
     }
 
+    /**
+     * Cambia el estado de encendido del motor.
+     * 
+     * @param encendido {@code true} para encender el motor; {@code false} para apagarlo.
+     */
     public void setEncendido(boolean encendido) {
         this.encendido = encendido;
     }
 
+    /**
+     * Obtiene el concesionario al que pertenece este coche.
+     * 
+     * @return la entidad {@link Concesionario} propietaria. Nunca {@code null}.
+     */
     public Concesionario getConcesionario() {
         return concesionario;
     }
 
+    /**
+     * Asocia este coche a un concesionario.
+     * 
+     * @param concesionario nueva entidad propietaria. No nulo.
+     */
     public void setConcesionario(Concesionario concesionario) {
         this.concesionario = concesionario;
     }
 
     /**
-     * ————————————————————————
-     * equals & hashCode (basados en PK)
-     * ————————————————————————
+     * Compara dos coches por su identificador.
+     * <p>
+     * Dos instancias se consideran iguales si tienen el mismo {@code id} no nulo.
+     * <strong>No</strong> se consideran iguales si ambos {@code id} son {@code null}.
+     * </p>
+     * 
+     * @param o objeto a comparar.
+     * @return {@code true} si son la misma entidad persistida; {@code false} en otro caso.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Coche)) return false;
+        Coche other = (Coche) o;
+        return id != null && id.equals(other.id);
+    }
+
+    /**
+     * Calcula el código hash basado en el {@code id}.
+     * <p>
+     * Si {@code id} es {@code null}, devuelve un valor constante (31)
+     * para mantener la estabilidad durante el ciclo de vida de la entidad.
+     * </p>
+     * 
+     * @return el código hash de la entidad.
      */
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        return result;
+        return id != null ? id.hashCode() : 31;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Coche other = (Coche) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        return true;
-    }
-
+    /**
+     * Representación en texto de la entidad.
+     * Incluye {@code id}, {@code marca} y {@code potencia}, útiles para registros.
+     * 
+     * @return cadena descriptiva del coche.
+     */
     @Override
     public String toString() {
-        return "Coche [id=" + id + ", potencia=" + potencia + ", marca=" + marca + "]";
+        return "Coche{" +
+               "id=" + id +
+               ", marca='" + marca + '\'' +
+               ", potencia=" + potencia +
+               '}';
     }
 }
