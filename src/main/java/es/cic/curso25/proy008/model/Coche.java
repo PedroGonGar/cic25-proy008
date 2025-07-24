@@ -2,9 +2,12 @@ package es.cic.curso25.proy008.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
@@ -56,14 +59,26 @@ public class Coche {
      *  CAMPO MARCA
      *  Longitud máxima 20 chars.
      *───────────────────────────*/
-    @Column(length = 20)
+    @Column(length = 20,
+            nullable = false)
     private String marca;
 
     /*────────────────────────────
      *  CAMPO BOOLEANO
      *  Hibernate lo mapea a BIT.
      *───────────────────────────*/
-    private boolean encendido;
+    private boolean encendido = false;
+
+    /**
+     * ————————————————————————
+     * Relación Many-to-One (lado "propietario")
+     * ————————————————————————
+    */ 
+    @ManyToOne(optional = false,
+               fetch = FetchType.LAZY)
+    @JoinColumn(name = "concesionario_id",
+                nullable = false)
+    private Concesionario concesionario;
 
      /*────────────────────────────
      *  CONSTRUCTORES
@@ -76,10 +91,11 @@ public class Coche {
     public Coche() {}
 
     // Constructor de conveniencia (no obligatorio).
-    public Coche(String marca, double potencia) {
+    public Coche(String marca, double potencia, Concesionario concesionario) {
         this.marca     = marca;
         this.potencia  = potencia;
         this.encendido = false;
+        this.concesionario = concesionario;
     }
 
     /*────────────────────────────
@@ -89,8 +105,8 @@ public class Coche {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getVersion() {
+        return version;
     }
 
     public double getPotencia() {
@@ -117,11 +133,46 @@ public class Coche {
         this.encendido = encendido;
     }
 
-    public Long getVersion() {
-        return version;
+    public Concesionario getConcesionario() {
+        return concesionario;
     }
 
-    public void setVersion(Long version) {
-        this.version = version;
+    public void setConcesionario(Concesionario concesionario) {
+        this.concesionario = concesionario;
+    }
+
+    /**
+     * ————————————————————————
+     * equals & hashCode (basados en PK)
+     * ————————————————————————
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Coche other = (Coche) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Coche [id=" + id + ", potencia=" + potencia + ", marca=" + marca + "]";
     }
 }

@@ -108,17 +108,17 @@ public class Concesionario {
         return List.copyOf(listaCoches);
     }
 
-    // public void addCoche(Coche coche) {
-    //     if (listaCoches.add(coche)) {
-    //         coche.setConcesionario(this);
-    //     }
-    // }
+    public void addCoche(Coche coche) {
+        if (listaCoches.add(coche)) {
+            coche.setConcesionario(this);
+        }
+    }
 
-    // public void removeCoche(Coche coche) {
-    //     if (listaCoches.remove(coche)) {
-    //         coche.setConcesionario(null);
-    //     }
-    // }
+    public void removeCoche(Coche coche) {
+        if (listaCoches.remove(coche)) {
+            coche.setConcesionario(null);
+        }
+    }
 
     @Override
     public int hashCode() {
