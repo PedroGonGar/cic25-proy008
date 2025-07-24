@@ -24,9 +24,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-// Excepciones y clases del proyecto
-import es.cic.curso25.proy008.controller.ModificationSecurityException;
 import es.cic.curso25.proy008.exception.CocheException;
+import es.cic.curso25.proy008.exception.ModificationSecurityException;
 import es.cic.curso25.proy008.model.Coche;
 import es.cic.curso25.proy008.repository.CocheRepository;
 import es.cic.curso25.proy008.service.CocheService;
