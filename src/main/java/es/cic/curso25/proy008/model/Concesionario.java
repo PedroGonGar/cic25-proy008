@@ -1,57 +1,67 @@
 package es.cic.curso25.proy008.model;
 
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
-@Entity(name = "Concesionario")
+@Entity
+@Table(name = "concesionario")
 public class Concesionario {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "nombre")
-    private String nombre;
-    @Column(name = "telefono")
-    private int telefono;
-    @Column(name = "ciudad")
-    private String ciudad;
-    @Column(name = "apertura")
-    private LocalTime apertura;
-    @Column(name = "cierre")
-    private LocalTime cierre;
-    @Column(name = "listaCoches")
-    private List<Coche> listaCoches;
+    @Version
+    private Long version;
 
-    @OneToOne(mappedBy = "coche")
-    private Coche coche;
+    @Column(nullable = false)
+    private String nombre;
+
+    @Column(nullable = false)
+    private int telefono;
+
+    private String ciudad;
+    private LocalTime apertura;
+    private LocalTime cierre;
+
+    @OneToMany(
+        mappedBy        = "concesionario",
+        cascade         = CascadeType.ALL,
+        orphanRemoval   = true,
+        fetch           = FetchType.LAZY
+    )
+    private Set<Coche> listaCoches = new HashSet<>();
 
     public Concesionario() {
 
     }
 
-    public Concesionario(Long id, String nombre, int telefono, String ciudad, LocalTime apertura, LocalTime cierre, List<Coche> listaCoches) {
-        this.id = id;
+    public Concesionario(String nombre, int telefono, String ciudad, LocalTime apertura, LocalTime cierre) {
         this.nombre = nombre;
         this.telefono = telefono;
         this.ciudad = ciudad;
         this.apertura = apertura;
         this.cierre = cierre;
-        this.listaCoches = listaCoches;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getVersion() {
+        return version;
     }
 
     public String getNombre() {
@@ -95,20 +105,20 @@ public class Concesionario {
     }
 
     public List<Coche> getListaCoches() {
-        return listaCoches;
+        return List.copyOf(listaCoches);
     }
 
-    public void setListaCoches(List<Coche> listaCoches) {
-        this.listaCoches = listaCoches;
-    }
+    // public void addCoche(Coche coche) {
+    //     if (listaCoches.add(coche)) {
+    //         coche.setConcesionario(this);
+    //     }
+    // }
 
-    public Coche getCoche() {
-        return coche;
-    }
-
-    public void setCoche(Coche coche) {
-        this.coche = coche;
-    }
+    // public void removeCoche(Coche coche) {
+    //     if (listaCoches.remove(coche)) {
+    //         coche.setConcesionario(null);
+    //     }
+    // }
 
     @Override
     public int hashCode() {
@@ -137,7 +147,7 @@ public class Concesionario {
 
     @Override
     public String toString() {
-        return "Concesionario [id=" + id + ", nombre=" + nombre + ", telefono=" + telefono + ", ciudad=" + ciudad
-                + ", apertura=" + apertura + ", cierre=" + cierre + "]";
+        return "Concesionario [id=" + id + ", version=" + version + ", nombre=" + nombre + ", telefono=" + telefono
+                + ", ciudad=" + ciudad + ", apertura=" + apertura + ", cierre=" + cierre + "]";
     }
 }
