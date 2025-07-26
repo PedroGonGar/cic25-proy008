@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;                    
 
 import es.cic.curso25.proy008.controller.CocheController;              
-import es.cic.curso25.proy008.controller.ModificationSecurityException;
+import es.cic.curso25.proy008.exception.ModificationSecurityException;
 import es.cic.curso25.proy008.exception.CocheException;                
 import es.cic.curso25.proy008.model.Coche;                            
 import es.cic.curso25.proy008.service.CocheService;                   

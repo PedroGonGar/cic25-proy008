@@ -42,7 +42,7 @@ public class Moto {
 
     // ONE TO ONE
     @JsonIgnore
-    @OneToOne(mappedBy = "motorista")
+    @OneToOne(mappedBy = "moto") //Le indicamos quie campo de motorista apunta a Moto
     private Motorista motorista;
 
     // CONSTRUCTORES

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.cic.curso25.proy008.model.Moto;
-import es.cic.curso25.proy008.controller.ModificationSecurityException;
+import es.cic.curso25.proy008.exception.ModificationSecurityException;
 import es.cic.curso25.proy008.exception.MotoristaException;
 import es.cic.curso25.proy008.model.Motorista;
 import es.cic.curso25.proy008.repository.MotoristaRepository;

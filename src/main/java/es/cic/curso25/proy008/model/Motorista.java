@@ -29,7 +29,7 @@ public class Motorista {
     @Id // Campo en la BBD ID
     @GeneratedValue(strategy = GenerationType.AUTO) // El valor se generará automáticamente
     private Long id;
-
+    
     @Version
     private Long version; // Define el nombre de la columna en la BBDD
 
@@ -52,6 +52,7 @@ public class Motorista {
     private TipoCarnet tipoCarnet;
 
     // ONE TO ONE
+    
     @OneToOne(cascade = CascadeType.PERSIST)
     private Moto moto;
 
