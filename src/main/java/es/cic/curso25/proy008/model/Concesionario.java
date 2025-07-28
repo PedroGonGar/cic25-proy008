@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 
 /**
@@ -20,6 +23,7 @@ import jakarta.persistence.*;
  */
 @Entity
 @Table(name = "concesionario")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Concesionario {
 
     /**
@@ -78,6 +82,8 @@ public class Concesionario {
         orphanRemoval = true,
         fetch         = FetchType.LAZY
     )
+
+    @JsonIgnore
     private Set<Coche> listaCoches = new HashSet<>();
 
     /**

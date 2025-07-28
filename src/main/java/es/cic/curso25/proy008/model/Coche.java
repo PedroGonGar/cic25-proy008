@@ -1,5 +1,7 @@
 package es.cic.curso25.proy008.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 
 /**
@@ -16,6 +18,7 @@ import jakarta.persistence.*;
  */
 @Entity
 @Table(name = "coche")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Coche {
 
     /**
@@ -93,12 +96,28 @@ public class Coche {
     }
 
     /**
+     * Modifica el identificador único de este coche
+     * @param id
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    /**
      * Obtiene la versión de concurrencia de la entidad.
      * 
      * @return el valor de {@code version} para control optimista.
      */
     public Long getVersion() {
         return version;
+    }
+
+    /**
+     * Modifica la versión de concurrencia de la entidad
+     * @param version
+     */
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     /**

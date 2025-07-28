@@ -52,4 +52,20 @@ public class ControllerAdviceException {
     public String handleCocheNotFound(CocheException ex) {
         return ex.getMessage();
     }
+
+    /**
+     * Maneja las {@link ConcesionarioException}.
+     * <p>
+     * Se invoca cuando no se encuentra un concesionario con el ID proporcionado.
+     * Retorna HTTP 404 Not Found con el mensaje de la excepción en el cuerpo.
+     * </p>
+     *
+     * @param ex excepción capturada que indica la ausencia del concesionario
+     * @return mensaje de error descriptivo para el cliente
+     */
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(ConcesionarioException.class)
+    public String handleConcesionarioNotFound(ConcesionarioException ex) {
+        return ex.getMessage();
+    }
 }
