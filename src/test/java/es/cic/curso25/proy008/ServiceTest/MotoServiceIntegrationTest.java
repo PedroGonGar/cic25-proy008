@@ -3,6 +3,7 @@ package es.cic.curso25.proy008.ServiceTest;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -102,6 +103,8 @@ class MotoServiceIntegrationTest {
         //EJECUTAMOS
         motoService.create(moto);
         Moto result = motoService.get(moto.getId()); //Almacenamos el resultado en una moto para la verificacion
+
+
 
         //COMPROBAMOS
         assertEquals(85, result.getPotencia());//la potencia es la que deberia

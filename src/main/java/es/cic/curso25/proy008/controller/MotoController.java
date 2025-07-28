@@ -2,6 +2,7 @@ package es.cic.curso25.proy008.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.cic.curso25.proy008.model.Moto;
+import es.cic.curso25.proy008.model.Motorista;
 import es.cic.curso25.proy008.service.MotoService;
+import es.cic.curso25.proy008.service.MotoristaService;
 
 @RestController // Le decimos a Spring que es una clase de controlador
 @RequestMapping("/motos") // Prefijo para todas las rutas de este controlador
@@ -30,9 +33,11 @@ public class MotoController {
         this.motoService = motoService;
     }
 
+    @Autowired
+    private MotoristaService motoristaService;
+
     //─────────────────────────CMETODOLOGIA CRUD──────────────────────────────────────
 
-    //───────────────────────────────────────────────────────────────
     /**
      * CREATE (Post)
      * Crea una entidad de Moto.
@@ -40,14 +45,19 @@ public class MotoController {
      * @param Moto
      * @return Entidad moto creada + código 201 (Created + Location)
      */
-    //───────────────────────────────────────────────────────────────
     @PostMapping
-    public Moto crearMoto(@RequestBody Moto moto) {
+    public Moto create(@RequestBody Moto moto) {
         return motoService.create(moto);
     }
 
-    //───────────────────────────────────────────────────────────────
-    /**───────────────────────────────────────────────────────────────
+    @PostMapping("/montura")
+    public Motorista create (@RequestBody Motorista motorista){
+        Motorista motoristaCreado = motoristaService.create(motorista);
+
+        return motoristaCreado;
+    }
+
+    /**
      * READ (Get)
      * Devuelve la entidad de moto que coincida con el ID proporcionado
      * 
@@ -55,26 +65,23 @@ public class MotoController {
      * @return entidad Moto, o un error en caso de que no exista ninguna 
      *         moto con ese id
      */
-    //───────────────────────────────────────────────────────────────
     @GetMapping("/{id}")
-     public Moto get(@PathVariable long id) {
+     public Moto get(@PathVariable Long id) {
         return motoService.get(id);
     }
 
-    //───────────────────────────────────────────────────────────────
-    /**───────────────────────────────────────────────────────────────
+    /**
      * READ (Get)
      * Obtiene una lista de motos
      * 
      * @return lista de todas las motos
      */
-    //───────────────────────────────────────────────────────────────
+    //
     @GetMapping
     public List<Moto> get() {
         return motoService.get();
     }
 
-    //───────────────────────────────────────────────────────────────
     /**
      * UPDATE (Put)
      * Metodo para actualizar Entidad moto
@@ -87,7 +94,6 @@ public class MotoController {
         return motoService.update(moto);
     }
 
-    //───────────────────────────────────────────────────────────────
     /**
      * DELETE (Delete)
      * Metodo para borrar motos en base a un id
@@ -103,7 +109,6 @@ public class MotoController {
      * DELETE (Delete)
      * Borra todas las entidades de Moto Existentes
      */
-    //───────────────────────────────────────────────────────────────
     @DeleteMapping()
     public void deleteAll() {
         motoService.deleteAll();

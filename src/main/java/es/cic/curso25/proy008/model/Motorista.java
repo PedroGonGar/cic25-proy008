@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -51,24 +52,25 @@ public class Motorista {
     @Enumerated(EnumType.STRING)
     private TipoCarnet tipoCarnet;
 
-    // ONE TO ONE
-    
-    @OneToOne(cascade = CascadeType.PERSIST)
+    /**
+     * ONE TO ONE
+     * Cascade Types: esto nos dara varias operaciones que se "Propagan" a la entidad relacionada, moto
+     * -PERSIST: En caso de eliminar Motorista, eliminaremos la moto
+     * -MERGE: Si hacemos MotoristaRepository.save() con un objeto que ya existe, estos cambios se
+     *          sincronizaran en la moto
+     * -EAGER: Carga automaticamente la Moto al cargar el Motorista desde la BBDD
+     *      en concreto con EAGER se hace un JOIN o una segunda consulta internamente al caragar motorista.
+     *      Esto puede afectar al rendimiento si la relacion no siempre es necesaria.
+     * 
+     * JOIN COLUMN
+     * Estamos diciendole que cree una Foreing key en la tabla del dueño de la relacion.
+    */
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @JoinColumn(name = "moto_id", referencedColumnName = "id")
     private Moto moto;
 
     // CONSTRUCTORES
 
-    // public Motorista() {
-    // }
-
-    // public Motorista(String nombre, String apellidos, int edad, boolean
-    // esMayorDeEdad, TipoCarnet tipoCarnet) {
-    // this.nombre = nombre;
-    // this.apellidos = apellidos;
-    // this.edad = edad;
-    // this.esMayorDeEdad = esMayorDeEdad;
-    // this.tipoCarnet = tipoCarnet;
-    // }
 
     // Getters&Setters
 
@@ -128,11 +130,11 @@ public class Motorista {
         this.tipoCarnet = tipoCarnet;
     }
 
-    public Moto geMoto() {
+    public Moto getMoto() {
         return moto;
     }
 
-    public void seMoto(Moto moto) {
+    public void setMoto(Moto moto) {
         this.moto = moto;
     }
 
@@ -163,7 +165,7 @@ public class Motorista {
 
     @Override
     public String toString() {
-        return "Perro [id = " + id + ", nombre = " + nombre + ", apellidos = " + apellidos +
+        return "Motorista [id = " + id + ", nombre = " + nombre + ", apellidos = " + apellidos +
                 ", edad =" + edad + ", Es mayor de Edad = " + esMayorDeEdad +
                 ", Tipo de Carnet = " + tipoCarnet + " ]";
     }

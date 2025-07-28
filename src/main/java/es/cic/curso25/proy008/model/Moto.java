@@ -2,6 +2,7 @@ package es.cic.curso25.proy008.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -41,8 +42,17 @@ public class Moto {
     private String tipo;
 
     // ONE TO ONE
-    @JsonIgnore
-    @OneToOne(mappedBy = "moto") //Le indicamos quie campo de motorista apunta a Moto
+    @JsonIgnore //Ignora esto cuando traduzcas a Json
+    /**
+     * Le indicamos quie campo de motorista apunta a Moto
+     * El campo "moto" al que apunta es el campo "moto" en la clase motorista.
+     * esto hace que al crear un objeto moto en la clase motorista se cree automaticamente
+     * un objeto moto.
+     * 
+     * Necesitaremos un control mas preciso con el remove ya que nos puede 
+     * generar un bucle infinito y/o un StackOverflow
+     */
+    @OneToOne(mappedBy = "moto", cascade = CascadeType.REMOVE) 
     private Motorista motorista;
 
     // CONSTRUCTORES
@@ -142,7 +152,7 @@ public class Moto {
 
     @Override
     public String toString() {
-        return "Perro [id=" + id + ", potencia = " + potencia + ", marca = " + marca +
+        return "Moto [id=" + id + ", potencia = " + potencia + ", marca = " + marca +
                 ", esta encendida = " + encendido + ", tipo = " + tipo + "]";
     }
 }
