@@ -6,59 +6,67 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * ╔════════════════════════════════════════════════════════════════╗
- * ║ ⚙ CONTROLLER‑ADVICE ║
- * ╠════════════════════════════════════════════════════════════════╣
- * ║  ¿QUÉ ES? ║
- * ║ Un “Advice” es un componente que intercepta de forma global ║
- * ║ las excepciones que se lanzan desde cualquier @RestController ║
- * ║ de la aplicación. ║
- * ║ ║
- * ║  ¿POR QUÉ? ║
- * ║ Para centralizar la gestión de errores y evitar repetir ║
- * ║ try‑catch en cada endpoint. ║
- * ╚════════════════════════════════════════════════════════════════╝
+ * Controlador de excepciones global para los controladores REST.
+ * <p>
+ * Intercepta excepciones de dominio y las transforma en respuestas
+ * HTTP con códigos y mensajes adecuados, evitando repetir lógica
+ * de manejo de errores en cada endpoint.
+ * </p>
+ * 
+ * @author Pedro González
+ * @version 1.0
+ * @since 1.0
  */
-
-@RestControllerAdvice // Actúa sobre todos los controladores REST
+@RestControllerAdvice
 public class ControllerAdviceException {
 
     /**
-     * ────────────────────────────────────────────────────────────────
-     * CUÁNDO ENTRA ESTE MÉTODO
-     * ───────────────────────────────────────────────────────────────
-     * • Cuando cualquier parte del código (Service, Controller, …)
-     * lanza {@link ModificationSecurityException}.
+     * Maneja las {@link ModificationSecurityException}.
+     * <p>
+     * Se invoca cuando se intenta crear un recurso incluyendo un ID,
+     * vulnerando las reglas de creación. Retorna HTTP 400 Bad Request
+     * con el mensaje de la excepción en el cuerpo.
+     * </p>
      *
-     * QUÉ HACE
-     * • Devuelve HTTP 400 (Bad Request) ← @ResponseStatus
-     * • El cuerpo de la respuesta es el texto de la excepción
-     * (ex.getMessage()) — por defecto: "Has tratado de modificar
-     * mediante creación".
-     *
-     * IMPORTANTE
-     * • No es necesario declarar ResponseEntity; Spring serializa
-     * el String de retorno como text/plain.
-     * • Si en el futuro queremos devolver JSON, bastaría con
-     * retornar un objeto (Map o DTO) en lugar de String.
-     * ────────────────────────────────────────────────────────────────
-     *
-     * @param ex la excepción capturada (inyectada por Spring)
-     * @return mensaje que viajará en el cuerpo HTTP
+     * @param ex excepción capturada que detalla el motivo de la violación
+     * @return mensaje de error descriptivo para el cliente
      */
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST) // Código HTTP a enviar
-    @ExceptionHandler(ModificationSecurityException.class) // La excepción que captura
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ModificationSecurityException.class)
     public String handleModificationSecurity(ModificationSecurityException ex) {
-
-        // Devolvemos el mensaje personalizado definido en la excepción
-        return ex.getMessage(); // "Has tratado de modificar mediante creación"
+        return ex.getMessage();
     }
 
+    /**
+     * Maneja las {@link CocheException}.
+     * <p>
+     * Se invoca cuando no se encuentra un coche con el ID proporcionado.
+     * Retorna HTTP 404 Not Found con el mensaje de la excepción en el cuerpo.
+     * </p>
+     *
+     * @param ex excepción capturada que indica la ausencia del recurso
+     * @return mensaje de error descriptivo para el cliente
+     */
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(CocheException.class)
     public String handleCocheNotFound(CocheException ex) {
-        return ex.getMessage(); // 404 + «Coche con id … no encontrado.»
+        return ex.getMessage();
+    }
+
+    /**
+     * Maneja las {@link ConcesionarioException}.
+     * <p>
+     * Se invoca cuando no se encuentra un concesionario con el ID proporcionado.
+     * Retorna HTTP 404 Not Found con el mensaje de la excepción en el cuerpo.
+     * </p>
+     *
+     * @param ex excepción capturada que indica la ausencia del concesionario
+     * @return mensaje de error descriptivo para el cliente
+     */
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(ConcesionarioException.class)
+    public String handleConcesionarioNotFound(ConcesionarioException ex) {
+        return ex.getMessage();
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

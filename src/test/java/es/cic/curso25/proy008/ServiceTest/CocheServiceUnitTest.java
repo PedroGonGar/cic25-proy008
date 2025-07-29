@@ -1,258 +1,230 @@
 package es.cic.curso25.proy008.ServiceTest;
 
-// ————————————————————————————————————————————————————————————————————————
-// Importaciones de aserciones de JUnit 5
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-// ————————————————————————————————————————————————————————————————————————
-// Importaciones de Mockito para configurar mocks y verificarlos
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 import java.util.Optional;
 
-// Extensiones de JUnit y Mockito
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-// Excepciones y clases del proyecto
-import es.cic.curso25.proy008.exception.ModificationSecurityException;
 import es.cic.curso25.proy008.exception.CocheException;
+import es.cic.curso25.proy008.exception.ModificationSecurityException;
 import es.cic.curso25.proy008.model.Coche;
 import es.cic.curso25.proy008.repository.CocheRepository;
 import es.cic.curso25.proy008.service.CocheService;
 
 /**
- * Anotamos con @ExtendWith para que JUnit use el motor de Mockito:
- *  - Inicializa los mocks (@Mock)
- *  - Inyecta los mocks en la clase bajo prueba (@InjectMocks)
+ * Pruebas unitarias para {@link CocheService}.
+ * <p>
+ * Utiliza Mockito para mockear el repositorio y aislar la lógica de negocio.
+ * </p>
+ * 
+ * @author Pedro González
+ * @version 1.0
+ * @since 1.0
  */
 @ExtendWith(MockitoExtension.class)
+@DisplayName("CocheServiceUnitTest")
 public class CocheServiceUnitTest {
 
-    // Creamos un mock de CocheRepository para simular la capa de datos
     @Mock
     private CocheRepository cocheRepository;
 
-    // Inyectamos el mock anterior en una instancia real de CocheService
     @InjectMocks
     private CocheService cocheService;
 
-    // ———————————————————————————————————————————————————————————————————————
-    // TEST: flujo exitoso de create()
-    // ———————————————————————————————————————————————————————————————————————
+    /**
+     * Verifica que {@code create(coche)} persiste correctamente cuando
+     * el coche no tiene ID.
+     */
     @Test
+    @DisplayName("create() éxito sin ID asignado")
     void testCreateSuccess() {
-        // 1) Preparamos un objeto sin ID (flujo normal de creación)
-        Coche coche = new Coche("Seat", 50);
+        // Preparación: Coche sin ID
+        Coche input = new Coche();
+        input.setMarca("Seat");
+        input.setPotencia(50);
 
-        // 2) Configuramos el mock: cuando se llame a save(coche), devolverá un coche con ID=5
-        Coche cocheGuardado = new Coche("Seat", 50);
-        cocheGuardado.setId(5L);
-        when(cocheRepository.save(coche))
-            .thenReturn(cocheGuardado);
+        // El repositorio mock devuelve un coche con ID=5
+        Coche persisted = new Coche();
+        persisted.setMarca("Seat");
+        persisted.setPotencia(50);
+        persisted.setId(5L);
 
-        // 3) Llamamos al método que queremos probar
-        Coche res = cocheService.create(coche);
+        when(cocheRepository.save(input)).thenReturn(persisted);
 
-        // 4) Comprobamos que el servicio devolvió el objeto con el ID esperado
-        assertEquals(5L, res.getId());
+        // Ejecución
+        Coche result = cocheService.create(input);
 
-        // 5) Verificamos que se llamó exactamente una vez a repository.save(coche)
-        verify(cocheRepository, times(1)).save(coche);
+        // Verificación
+        assertEquals(5L, result.getId(), "Debe devolver el ID asignado por el repositorio");
+        verify(cocheRepository, times(1)).save(input);
     }
 
-    // ———————————————————————————————————————————————————————————————————————
-    // TEST: create() rechaza cuando el objeto ya trae ID
-    // ———————————————————————————————————————————————————————————————————————
+    /**
+     * Verifica que {@code create(coche)} lance {@link ModificationSecurityException}
+     * si el coche ya trae un ID (regla de negocio).
+     */
     @Test
+    @DisplayName("create() rechaza cuando el coche ya tiene ID")
     void testCreateRejectWithId() {
-        // 1) Preparamos un coche 'fake' que ya tiene ID
-        Coche coche = new Coche("Fake", 10);
-        coche.setId(99L);
+        Coche input = new Coche();
+        input.setMarca("Fake");
+        input.setPotencia(10);
+        input.setId(99L);
 
-        // 2) Debe lanzar ModificationSecurityException porque no se permite crear con ID
         assertThrows(ModificationSecurityException.class,
-            () -> cocheService.create(coche));
-        // No hay verify porque la excepción ocurre antes de tocar el repositorio
-    }
-
-    // ———————————————————————————————————————————————————————————————————————
-    // TEST: get(id) cuando el ID existe
-    // ———————————————————————————————————————————————————————————————————————
-    @Test
-    void testGetExisting() {
-        // 1) Preparamos un coche con ID=1
-        Coche coche = new Coche("Fiat", 80);
-        coche.setId(1L);
-
-        // 2) Configuramos el mock: findById(1L) devuelve Optional.of(coche)
-        when(cocheRepository.findById(1L))
-            .thenReturn(Optional.of(coche));
-
-        // 3) Llamamos al servicio
-        Coche resultado = cocheService.get(1L);
-
-        // 4) Aserción: la marca coincide con la esperada
-        assertEquals("Fiat", resultado.getMarca());
-
-        // 5) Verificamos que se invocó findById(1L) exactamente una vez
-        verify(cocheRepository, times(1)).findById(1L);
-    }
-
-    // ———————————————————————————————————————————————————————————————————————
-    // TEST: get(id) cuando el ID NO existe → 404 de dominio (CocheException)
-    // ———————————————————————————————————————————————————————————————————————
-    @Test
-    void testGetNonExisting() {
-        // 1) Configuramos que findById(42L) devuelva Optional.empty()
-        when(cocheRepository.findById(42L))
-            .thenReturn(Optional.empty());
-
-        // 2) Debe lanzar CocheException al no encontrar el coche
-        assertThrows(CocheException.class,
-            () -> cocheService.get(42L));
-        // No es necesario verify explícito sobre findById
-    }
-
-    // ———————————————————————————————————————————————————————————————————————
-    // TEST: get() sin parámetros → devuelve lista completa
-    // ———————————————————————————————————————————————————————————————————————
-    @Test
-    void testGetAll() {
-        // 1) Preparamos una lista de prueba
-        List<Coche> lista = List.of(
-            new Coche("A", 10),
-            new Coche("B", 20)
-        );
-
-        // 2) Configuramos el mock: findAll() devuelve nuestra lista
-        when(cocheRepository.findAll())
-            .thenReturn(lista);
-
-        // 3) Llamamos al servicio get()
-        List<Coche> res = cocheService.get();
-
-        // 4) Aserciones: tamaño y primer elemento
-        assertEquals(2, res.size());
-        assertEquals("A", res.get(0).getMarca());
-
-        // 5) Verificamos que findAll() se llamó exactamente una vez
-        verify(cocheRepository, times(1)).findAll();
-    }
-
-    // ———————————————————————————————————————————————————————————————————————
-    // TEST: update(coche) cuando todo es válido
-    // ———————————————————————————————————————————————————————————————————————
-    @Test
-    void testUpdateSuccess() {
-        // 1) Preparamos coche con ID=8
-        Coche coche = new Coche("Ford", 80);
-        coche.setId(8L);
-
-        // 2) Simulamos que existsById(8L) devuelve true → pasa la validación
-        when(cocheRepository.existsById(8L))
-            .thenReturn(true);
-
-        // 3) Llamamos al servicio
-        cocheService.update(coche);
-
-        // 4) Verificaciones:
-        //    - Se comprobó existencia
-        verify(cocheRepository, times(1)).existsById(8L);
-        //    - Se guardó el coche (save)
-        verify(cocheRepository, times(1)).save(coche);
-    }
-
-    // ———————————————————————————————————————————————————————————————————————
-    // TEST: update(coche) sin ID → 400 Bad Request (ModificationSecurityException)
-    // ———————————————————————————————————————————————————————————————————————
-    @Test
-    void testUpdateRejectWithoutId() {
-        // 1) Preparamos coche sin ID
-        Coche coche = new Coche("X", 0);
-
-        // 2) Debe lanzar ModificationSecurityException
-        assertThrows(ModificationSecurityException.class,
-            () -> cocheService.update(coche));
-
-        // 3) Verificamos que NO hubo interacción con el repositorio
+            () -> cocheService.create(input),
+            "Debe lanzar ModificationSecurityException cuando el coche trae ID");
         verifyNoInteractions(cocheRepository);
     }
 
-    // ———————————————————————————————————————————————————————————————————————
-    // TEST: update(coche) con ID inexistente → 404 Not Found (CocheException)
-    // ———————————————————————————————————————————————————————————————————————
+    /**
+     * Verifica que {@code get(id)} retorne el coche existente.
+     */
     @Test
-    void testUpdateRejectNonExisting() {
-        // 1) Preparamos coche con ID=99
-        Coche coche = new Coche("Ghost", 1);
-        coche.setId(99L);
+    @DisplayName("get(id) devuelve coche cuando existe")
+    void testGetExisting() {
+        Coche existing = new Coche();
+        existing.setId(1L);
+        existing.setMarca("Fiat");
+        existing.setPotencia(80);
 
-        // 2) Simulamos que existsById(99L) devuelve false
-        when(cocheRepository.existsById(99L))
-            .thenReturn(false);
+        when(cocheRepository.findById(1L)).thenReturn(Optional.of(existing));
 
-        // 3) Debe lanzar CocheException
+        Coche result = cocheService.get(1L);
+
+        assertEquals("Fiat", result.getMarca(), "La marca debe coincidir");
+        verify(cocheRepository, times(1)).findById(1L);
+    }
+
+    /**
+     * Verifica que {@code get(id)} lance {@link CocheException} si no existe.
+     */
+    @Test
+    @DisplayName("get(id) lanza excepción cuando no existe")
+    void testGetNonExisting() {
+        when(cocheRepository.findById(42L)).thenReturn(Optional.empty());
+
         assertThrows(CocheException.class,
-            () -> cocheService.update(coche));
+            () -> cocheService.get(42L),
+            "Debe lanzar CocheException para ID inexistente");
+    }
 
-        // 4) Verificaciones:
-        //    - Se comprobó existsById
+    /**
+     * Verifica que {@code get()} devuelva la lista completa de coches.
+     */
+    @Test
+    @DisplayName("get() devuelve todos los coches")
+    void testGetAll() {
+        Coche c1 = new Coche();
+        c1.setMarca("A"); c1.setPotencia(10);
+        Coche c2 = new Coche();
+        c2.setMarca("B"); c2.setPotencia(20);
+        List<Coche> mockList = List.of(c1, c2);
+
+        when(cocheRepository.findAll()).thenReturn(mockList);
+
+        List<Coche> result = cocheService.get();
+
+        assertEquals(2, result.size(), "Debe devolver dos coches");
+        assertEquals("A", result.get(0).getMarca(), "El primer coche debe ser 'A'");
+        verify(cocheRepository, times(1)).findAll();
+    }
+
+    /**
+     * Verifica que {@code update(coche)} persista los cambios cuando el coche existe.
+     */
+    @Test
+    @DisplayName("update() éxito cuando existe ID")
+    void testUpdateSuccess() {
+        Coche input = new Coche();
+        input.setId(8L);
+        input.setMarca("Ford");
+        input.setPotencia(80);
+
+        when(cocheRepository.existsById(8L)).thenReturn(true);
+
+        cocheService.update(input);
+
+        verify(cocheRepository, times(1)).existsById(8L);
+        verify(cocheRepository, times(1)).save(input);
+    }
+
+    /**
+     * Verifica que {@code update(coche)} lance {@link ModificationSecurityException}
+     * si el coche no trae ID.
+     */
+    @Test
+    @DisplayName("update() rechaza sin ID")
+    void testUpdateRejectWithoutId() {
+        Coche input = new Coche();
+        input.setMarca("X");
+        input.setPotencia(0);
+
+        assertThrows(ModificationSecurityException.class,
+            () -> cocheService.update(input),
+            "Debe lanzar ModificationSecurityException si no hay ID");
+        verifyNoInteractions(cocheRepository);
+    }
+
+    /**
+     * Verifica que {@code update(coche)} lance {@link CocheException}
+     * cuando el ID no existe en la base de datos.
+     */
+    @Test
+    @DisplayName("update() lanza excepción si ID no existe")
+    void testUpdateRejectNonExisting() {
+        Coche input = new Coche();
+        input.setId(99L);
+        input.setMarca("Ghost");
+        input.setPotencia(1);
+
+        when(cocheRepository.existsById(99L)).thenReturn(false);
+
+        assertThrows(CocheException.class,
+            () -> cocheService.update(input),
+            "Debe lanzar CocheException si no existe el ID");
         verify(cocheRepository, times(1)).existsById(99L);
-        //    - Nunca se llamó a save() porque falló antes
         verify(cocheRepository, never()).save(any());
     }
 
-    // ———————————————————————————————————————————————————————————————————————
-    // TEST: delete(id) cuando existe → elimina correctamente
-    // ———————————————————————————————————————————————————————————————————————
+    /**
+     * Verifica que {@code delete(id)} elimine correctamente cuando el coche existe.
+     */
     @Test
+    @DisplayName("delete(id) elimina coche existente")
     void testDeleteSuccess() {
         long id = 3L;
+        when(cocheRepository.existsById(id)).thenReturn(true);
 
-        // 1) Simulamos que existsById(3L) devuelve true
-        when(cocheRepository.existsById(id))
-            .thenReturn(true);
-
-        // 2) Llamamos al servicio
         cocheService.delete(id);
 
-        // 3) Verificaciones:
-        //    - Se comprobó existencia
         verify(cocheRepository, times(1)).existsById(id);
-        //    - Se llamó a deleteById(3L)
         verify(cocheRepository, times(1)).deleteById(id);
     }
 
-    // ———————————————————————————————————————————————————————————————————————
-    // TEST: delete(id) cuando NO existe → 404 Not Found (CocheException)
-    // ———————————————————————————————————————————————————————————————————————
+    /**
+     * Verifica que {@code delete(id)} lance {@link CocheException}
+     * cuando el coche no existe.
+     */
     @Test
+    @DisplayName("delete(id) lanza excepción si no existe")
     void testDeleteRejectNonExisting() {
         long id = 7L;
+        when(cocheRepository.existsById(id)).thenReturn(false);
 
-        // 1) Simulamos que existsById(7L) devuelve false
-        when(cocheRepository.existsById(id))
-            .thenReturn(false);
-
-        // 2) Debe lanzar CocheException
         assertThrows(CocheException.class,
-            () -> cocheService.delete(id));
-
-        // 3) Verificaciones:
-        //    - Se comprobó existsById
+            () -> cocheService.delete(id),
+            "Debe lanzar CocheException para ID inexistente");
         verify(cocheRepository, times(1)).existsById(id);
-        //    - Nunca se llamó a deleteById() porque falló antes
         verify(cocheRepository, never()).deleteById(id);
     }
 }

@@ -1,47 +1,48 @@
 package es.cic.curso25.proy008.exception;
 
 /**
- * ╔════════════════════════════════════════════════════════════════╗
- * ║           ✋  MODIFICATION‑SECURITY‑EXCEPTION (DOMINIO)         ║
- * ╠════════════════════════════════════════════════════════════════ ╣
- * ║ ‑ Se lanza cuando un usuario intenta **CREAR** (POST) un        ║
- * ║   recurso que en realidad ya tiene ID → está “modificando”      ║
- * ║   algo que debería haberse creado sin identificador.            ║
- * ║ ‑ Extiende {@link RuntimeException} para no obligar a poner     ║
- * ║   `throws` ni try‑catch en todas las llamadas (unchecked).      ║
- * ║ ‑ Es capturada globalmente por {@code ControllerAdviceException}║
- * ║   y convertida en HTTP 400 Bad Request.                         ║
- * ╚════════════════════════════════════════════════════════════════╝
+ * Excepción de dominio que se lanza cuando se detecta un intento
+ * de “crear” (POST) un recurso que ya incluye un identificador,
+ * violando la regla de no modificar durante la creación.
+ * <p>
+ * Extiende {@link RuntimeException} (unchecked) para no obligar a
+ * declarar `throws` en cada llamada. Es capturada por
+ * {@code ControllerAdviceException} y traducida a HTTP 400 Bad Request.
+ * </p>
+ * 
+ * @author Pedro González
+ * @version 1.0
+ * @since 1.0
  */
-
 public class ModificationSecurityException extends RuntimeException {
 
-    /*─────────────────────────────────────────────────────────────
-     * 1) CONSTRUCTOR POR DEFECTO
-     *    ‑ Usa un mensaje genérico, útil el 90 % de los casos.
-     *────────────────────────────────────────────────────────────*/
-
+    /**
+     * Construye una nueva {@code ModificationSecurityException}
+     * con un mensaje genérico indicando un intento de modificación
+     * durante la creación de un recurso.
+     */
     public ModificationSecurityException() {
         super("Has tratado de modificar mediante creación");
     }
 
-    /*─────────────────────────────────────────────────────────────
-     * 2) CONSTRUCTOR CON MENSAJE CUSTOM
-     *    ‑ Permite indicar más contexto: ID, usuario, etc.
-     *      Ej.:  new ModificationSecurityException(
-     *              "La moto con id 5 ya existe; no se puede crear");
-     *────────────────────────────────────────────────────────────*/
-
+    /**
+     * Construye una {@code ModificationSecurityException} con un
+     * mensaje de error personalizado.
+     *
+     * @param message Mensaje que detalla el contexto de la excepción.
+     */
     public ModificationSecurityException(String message) {
         super(message);
     }
 
-    /*─────────────────────────────────────────────────────────────
-     * 3) CONSTRUCTOR CON MENSAJE + CAUSA
-     *    ‑ Encadena la excepción original 
-     *      para no perder la traza cuando llega al handler global.
-     *────────────────────────────────────────────────────────────*/
-
+    /**
+     * Construye una {@code ModificationSecurityException} con un
+     * mensaje personalizado y una causa subyacente, preservando
+     * la traza original.
+     *
+     * @param message   Mensaje que detalla el contexto de la excepción.
+     * @param throwable Causa original que provocó esta excepción.
+     */
     public ModificationSecurityException(String message, Throwable throwable) {
         super(message, throwable);
     }

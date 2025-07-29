@@ -1,10 +1,10 @@
 package es.cic.curso25.proy008.ControllerTest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
+import java.time.LocalTime;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,155 +18,177 @@ import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.cic.curso25.proy008.model.Coche;
+import es.cic.curso25.proy008.model.Concesionario;
 import es.cic.curso25.proy008.repository.CocheRepository;
+import es.cic.curso25.proy008.repository.ConcesionarioRepository;
 
 /**
- * ╔═══════════════════════════════════════════════════════════════════════════╗
- * ║                🔬 C O C H E C O N T R O L L E R T E S T                   ║
- * ╠═══════════════════════════════════════════════════════════════════════════╣
- * ║ INTEGRACIÓN COMPLETA                                                      ║
- * ║ – Usa @SpringBootTest: levanta todo el contenedor Spring, incluida la     ║
- * ║ BD embebida H2 y el DispatcherServlet.                                    ║
- * ║ – @AutoConfigureMockMvc inyecta un {@link MockMvc} que simula peticiones  ║
- * ║ HTTP contra los endpoints reales, sin necesidad de arrancar Tomcat.       ║
- * ╚═══════════════════════════════════════════════════════════════════════════╝
+ * Pruebas de integración para {@code CocheController}.
+ * <p>
+ * Arranca el contexto completo de Spring Boot, incluyendo H2 en memoria,
+ * repositorios JPA y DispatcherServlet. Utiliza {@link MockMvc} para
+ * simular peticiones HTTP reales sin arrancar un servidor externo.
+ * </p>
+ * 
+ * @author Pedro González
+ * @version 1.0
+ * @since 1.0
  */
-
 @SpringBootTest
 @AutoConfigureMockMvc
-class CocheControllerIntegrationTest {
+@DisplayName("CocheControllerIntegrationTest")
+public class CocheControllerIntegrationTest {
 
-    /* Inyección de dependencias para las pruebas */
     @Autowired
-    // Lanza HTTP contra DispatcherServlet
     private MockMvc mockMvc;
 
     @Autowired
-    // JSON <=> Java
     private ObjectMapper objectMapper;
 
     @Autowired
-    // Acceso directo a la BD para checks
     private CocheRepository cocheRepository;
 
+    @Autowired
+    private ConcesionarioRepository concesionarioRepository;
+
     /**
-     * ───────────────────────────────────────────────────────────────────────────
-     * 1) POST /coches → Guarda y devuelve coche con id
-     * ───────────────────────────────────────────────────────────────────────────
-     * 
-     * @throws Exception
+     * POST /coches
+     * <p>
+     * Dado un concesionario persistido, crea un coche sin {@code id} asociado a él,
+     * espera HTTP 200 y que el JSON devuelva un {@code id} positivo. Además
+     * comprueba que dicho coche se ha guardado en la BD.
+     * </p>
+     *
+     * @throws Exception Si la petición HTTP falla.
      */
     @Test
-    @DisplayName("POST /coches guarda el coche y devuelve JSON con id")
-    void shouldCreateCoche() throws Exception {
+    @DisplayName("POST /coches guarda el coche y persiste en BD")
+    public void shouldCreateCoche() throws Exception {
+        // 1) Dado un concesionario en BD
+        Concesionario cons = new Concesionario(
+            "TestCons", 600123456, "Madrid",
+            LocalTime.of(9, 0), LocalTime.of(18, 0)
+        );
+        cons = concesionarioRepository.save(cons);
 
-        // PREPARACIÓN
-        // Coche sin id (JPA lo generará)
-        Coche coche = new Coche("Audi", 90);
-        String json = objectMapper.writeValueAsString(coche);
+        // 2) Cuando envío POST /coches
+        Coche coche = new Coche("Audi", 90, cons);
+        String jsonIn = objectMapper.writeValueAsString(coche);
 
-        // EJECUCIÓN
         MvcResult res = mockMvc.perform(post("/coches")
-                .contentType(MediaType.APPLICATION_JSON) // Cabecera
-                .content(json)) // Cuerpo
-                .andDo(print())
-                .andExpect(status().isOk()) // 200 esperado
-                .andReturn();
-
-        // COMPROBACIÓN
-        // Convertimos la respuesta a Coche
-        Coche body = objectMapper.readValue(res.getResponse().getContentAsString(),
-                Coche.class);
-        assertTrue(body.getId() > 0, "El id debe ser positivo");
-    }
-
-    /**
-     * ───────────────────────────────────────────────────────────────────────────
-     * 2) GET /coches/{id} → 200 si existe, 404 + mensaje si no
-     * ───────────────────────────────────────────────────────────────────────────
-     * 
-     * @throws Exception
-     */
-    @Test
-    @DisplayName("GET /coches/{id} devuelve 200 con objeto y 404 con mensaje si no existe")
-    void shouldReturnCocheOrNotFound() throws Exception {
-
-        // Persistimos un coche real
-        Coche coche = new Coche("BMW", 120);
-        coche.setEncendido(true);
-        coche = cocheRepository.save(coche);
-
-        // ── Caso 1: existe
-        mockMvc.perform(get("/coches/{id}", coche.getId()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(coche.getId()))
-                .andExpect(jsonPath("$.marca").value("BMW"))
-                .andDo(print());
-
-        // ── Caso 2: NO existe
-        long idInexistente = coche.getId() + 999;
-        String mensaje = "Coche con id " + idInexistente + " no encontrado.";
-
-        mockMvc.perform(get("/coches/{id}", idInexistente))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string(mensaje)) // cuerpo plano (Advice)
-                .andDo(print()); 
-    }
-
-    /**
-     * ───────────────────────────────────────────────────────────────────────────
-     * 3) PUT /coches → actualiza el coche existente
-     * ───────────────────────────────────────────────────────────────────────────
-     * 
-     * @throws Exception
-     */
-    @Test
-    @DisplayName("PUT /coches actualiza en BD (sin cuerpo de respuesta)")
-    void shouldUpdateCoche() throws Exception {
-
-        // 1. Persistimos un coche inicial
-        Coche coche = cocheRepository.save(new Coche("Seat", 75));
-
-        // 2. Preparamos el JSON con los nuevos valores
-        coche.setMarca("Volkswagen");
-        coche.setPotencia(110);
-        String json = objectMapper.writeValueAsString(coche);
-
-        // 3. Ejecutamos el PUT -> 200 vacío
-        mockMvc.perform(put("/coches")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-                .andDo(print())
-                .andExpect(status().isOk());
+                .content(jsonIn))
+            .andExpect(status().isOk())
+            .andReturn();
 
-        // 4. Verificamos contra la base de datos
-        Coche actualizado = cocheRepository.findById(coche.getId()).orElseThrow();
-        assertEquals("Volkswagen", actualizado.getMarca());
-        assertEquals(110, actualizado.getPotencia());
+        // 3) Entonces JSON contiene un id > 0
+        Coche created = objectMapper.readValue(
+            res.getResponse().getContentAsString(),
+            Coche.class
+        );
+        assertNotNull(created.getId(), "El id no debe ser null");
+        assertTrue(created.getId() > 0, "El id debe ser positivo");
+
+        // 4) Y el coche realmente existe en la BD
+        assertTrue(cocheRepository.existsById(created.getId()),
+                   "El coche debería persistirse en la BD");
     }
 
     /**
-     * ───────────────────────────────────────────────────────────────────────────
-     * 4) DELETE /coches/{id} → elimina el registro
-     * ───────────────────────────────────────────────────────────────────────────
-     * 
-     * @throws Exception
+     * GET /coches/{id}
+     * <p>
+     * Comprueba que:
+     * <ul>
+     *   <li>200 OK + JSON con los campos correctos cuando existe.</li>
+     *   <li>404 Not Found + mensaje plano cuando no existe.</li>
+     * </ul>
+     * </p>
+     *
+     * @throws Exception Si la petición HTTP falla.
      */
     @Test
-    @DisplayName("DELETE /coches/{id} elimina el registro")
-    void shouldDeleteCoche() throws Exception {
+    @DisplayName("GET /coches/{id} devuelve 200 o 404 según existencia")
+    public void shouldReturnCocheOrNotFound() throws Exception {
+        // Preparamos concesionario y coche en BD
+        Concesionario cons = new Concesionario(
+            "TestCons2", 600654321, "Barcelona",
+            LocalTime.of(8, 0), LocalTime.of(17, 0)
+        );
+        cons = concesionarioRepository.save(cons);
 
-        // Persistimos un coche que después borraremos
-        Coche coche = new Coche("Seat", 75);
-        coche = cocheRepository.save(coche);
+        Coche saved = new Coche("BMW", 120, cons);
+        saved.setEncendido(true);
+        saved = cocheRepository.save(saved);
 
-        // Ejecutamos la petición DELETE
-        mockMvc.perform(delete("/coches/{id}", coche.getId()))
-                .andDo(print())
-                .andExpect(status().isOk());
+        // — Caso existe → 200 + JSON
+        mockMvc.perform(get("/coches/{id}", saved.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(saved.getId()))
+            .andExpect(jsonPath("$.marca").value("BMW"));
 
-        // Afirmamos que ya no existe
-        assertTrue(cocheRepository.findById(coche.getId()).isEmpty(),
-                "El coche debería haber sido eliminado");
+        // — Caso no existe → 404 + mensaje
+        long missingId = saved.getId() + 999;
+        String msg = "Coche con id " + missingId + " no encontrado.";
+
+        mockMvc.perform(get("/coches/{id}", missingId))
+            .andExpect(status().isNotFound())
+            .andExpect(content().string(msg));
+    }
+
+    /**
+     * PUT /coches/{id}
+     * <p>
+     * Envía JSON con el mismo {@code id} y datos nuevos, espera
+     * 204 No Content y verifica en BD que se actualizaron.
+     * </p>
+     *
+     * @throws Exception Si la petición HTTP falla.
+     */
+    @Test
+    @DisplayName("PUT /coches/{id} actualiza en BD y devuelve 204")
+    public void shouldUpdateCoche() throws Exception {
+        Concesionario cons = concesionarioRepository.save(
+            new Concesionario("TestCons3", 600111222, "Valencia",
+                              LocalTime.of(7, 30), LocalTime.of(16, 30))
+        );
+        Coche original = cocheRepository.save(new Coche("Seat", 75, cons));
+
+        original.setMarca("Volkswagen");
+        original.setPotencia(110);
+        String jsonIn = objectMapper.writeValueAsString(original);
+
+        mockMvc.perform(put("/coches/{id}", original.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonIn))
+            .andExpect(status().isNoContent());
+
+        Coche updated = cocheRepository.findById(original.getId()).orElseThrow();
+        assertEquals("Volkswagen", updated.getMarca());
+        assertEquals(110, updated.getPotencia());
+    }
+
+    /**
+     * DELETE /coches/{id}
+     * <p>
+     * Elimina un coche existente, espera 200 OK y comprueba
+     * que ya no esté en la BD.
+     * </p>
+     *
+     * @throws Exception Si la petición HTTP falla.
+     */
+    @Test
+    @DisplayName("DELETE /coches/{id} elimina el registro y devuelve 200")
+    public void shouldDeleteCoche() throws Exception {
+        Concesionario cons = concesionarioRepository.save(
+            new Concesionario("TestCons4", 600333444, "Sevilla",
+                              LocalTime.of(10, 0), LocalTime.of(19, 0))
+        );
+        Coche toDelete = cocheRepository.save(new Coche("Seat", 75, cons));
+
+        mockMvc.perform(delete("/coches/{id}", toDelete.getId()))
+            .andExpect(status().isOk());
+
+        assertFalse(cocheRepository.existsById(toDelete.getId()),
+                    "El coche debería haber sido eliminado de la BD");
     }
 }
