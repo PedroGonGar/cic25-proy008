@@ -17,7 +17,7 @@ import jakarta.persistence.*;
  * Modela la relación One-to-Many con {@link Coche}, de modo que un concesionario
  * puede gestionar múltiples coches.
  * 
- * @author TuNombre
+ * @author Pedro González
  * @version 1.0
  * @since 1.0
  */

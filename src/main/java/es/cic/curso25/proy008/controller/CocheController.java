@@ -29,7 +29,7 @@ import es.cic.curso25.proy008.service.CocheService;
  * </ul>
  * </p>
  * 
- * @author TuNombre
+ * @author Pedro González
  * @version 1.0
  * @since 1.0
  */
