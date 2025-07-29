@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,7 +12,6 @@ import es.cic.curso25.proy008.model.Moto;
 import es.cic.curso25.proy008.exception.ModificationSecurityException;
 import es.cic.curso25.proy008.exception.MotoristaException;
 import es.cic.curso25.proy008.model.Motorista;
-import es.cic.curso25.proy008.repository.MotoRepository;
 import es.cic.curso25.proy008.repository.MotoristaRepository;
 
 //Le decimos a Spring que es un service
@@ -26,8 +24,6 @@ public class MotoristaService {
 
     private final MotoristaRepository motoristaRepository;
 
-    @Autowired
-    private MotoRepository motoRepository;
 
     /**
      * Constructor de Motoristaservice.
@@ -79,20 +75,14 @@ public class MotoristaService {
      * @param id
      * @return Entidad Motorista encontrada o Error si no existe
      */
-    @Transactional(readOnly = true)
-    public Optional<Motorista> get(Long id) {
+    //@Transactional(readOnly = true)
+    public Motorista get(long id) {
 
         // Utilizamos un placeholder {} ya que con + se evalúa siempre la concatenación.
         LOGGER.info("Buscando motorista con id: {}", id);
 
-        // return motoristaRepository.findById(id)
-        //         .orElseThrow(() -> new MotoristaException(id));
-
-        Optional<Motorista> motorista = motoristaRepository.findById(id);
-
-        LOGGER.info("Encontrado el siguiente Motorista: "+motorista);
-
-        return motorista;
+        return motoristaRepository.findById(id)
+                 .orElseThrow(() -> new MotoristaException(id));
 
     }
 

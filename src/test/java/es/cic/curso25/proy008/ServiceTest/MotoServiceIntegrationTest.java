@@ -3,7 +3,6 @@ package es.cic.curso25.proy008.ServiceTest;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,27 +17,19 @@ import es.cic.curso25.proy008.repository.MotoRepository;
 import es.cic.curso25.proy008.service.MotoService;
 
 /**
- * ╔═══════════════════════════════════════════════════════════════════════════╗
- * ║ 🔬  C O C H E S E R V I C E   –   I N T E G R A T I O N   T E S T S       ║
- * ╠═══════════════════════════════════════════════════════════════════════════╣
- * ║ ✔  @SpringBootTest   ▸ arranca todo Spring (Service, Repository, H2…).    ║
- * ║ ✔  @Transactional    ▸ cada test corre en su transacción ⇒ rollback.     ║
- * ║ ✔  No se usa MockMvc: aquí probamos la capa de servicio directamente.     ║
- * ║                                                                           ║
- * ║    Pruebas de integración para CocheService.                              ║
- * ║    Verifica la correcta interacción entre el servicio y la base de datos. ║
- * ║    Usa una base de datos H2 en memoria y transacciones que se revierten   ║
- * ║     después de cada test.                                                 ║
- * ╚═══════════════════════════════════════════════════════════════════════════╝
+ * Pruebas de integración para CocheService.
+ * Verifica la correcta interacción entre el servicio y la base de datos.
+ * Usa una base de datos H2 en memoria y transacciones que se revierten
+ * después de cada test.
  */
 @SpringBootTest
 @Transactional
 class MotoServiceIntegrationTest {
 
 
-    /*─────────────────────────────────────────────────────────────
+    /*
      * I N Y E C C I Ó N   D E   B E A N S
-     *───────────────────────────────────────────────────────────*/
+     */
     @Autowired
     private MotoService motoService;      // SUT (System Under Test)
 
@@ -49,9 +40,9 @@ class MotoServiceIntegrationTest {
      * 1)  C  R  E  A  T  E
      *=====================================================================*/
 
-     /**─────────────────────────────────────────────────────────────
+     /**
       * Metodo para comprobar si se crean correctamente las motos
-      *─────────────────────────────────────────────────────────────*/
+      */
      @Test
      @DisplayName("Crea un coche nuevo y le asigna automaticamente un ID")
      void shouldCreateMoto(){
@@ -68,12 +59,11 @@ class MotoServiceIntegrationTest {
                     "La moto deberia existir en la BBDD");
      }
      
-     //─────────────────────────────────────────────────────────────
      /**
       * Este metodo nos va a crear una moto pasandole un id, 
       * lo que generará una excepción en el método. Nuestro objetivo
-      * es obtenerla.*/
-      //─────────────────────────────────────────────────────────────
+      * es obtenerla.
+      */
      @Test
      @DisplayName("Lanza una excepción cuando la moto venga con un ID")
      void shouldRejectCreateWithID(){
@@ -113,10 +103,10 @@ class MotoServiceIntegrationTest {
         assertFalse(result.isEncendido(), "Encendido es False por defecto");//Está apagada como debería
      }
 
-     /**─────────────────────────────────────────────────────────────
+     /**
       * Método para comprobar la funcionalida del metodo Get de Service
       * en el caso de que se obtenga una referencia nula
-      *─────────────────────────────────────────────────────────────*/
+      */
      @Test
      @DisplayName("Nos lanzará una excepcion si la moto no existe o es null")
      void shouldThrowWhenNotFound(){
@@ -124,10 +114,10 @@ class MotoServiceIntegrationTest {
 
      }
 
-     /**─────────────────────────────────────────────────────────────
+     /**
       * Método para comprobar la funcionalida del metodo get() 
       * Con el constructor vacio nos deberia devolver
-      *─────────────────────────────────────────────────────────────*/
+      */
       @Test
       @DisplayName("Nos devolvera todos los coches")
       void shouldGetAll(){
@@ -157,9 +147,9 @@ class MotoServiceIntegrationTest {
      * 3)  U  P  D  A  T  E
      *=====================================================================*/
 
-     /**─────────────────────────────────────────────────────────────
+     /**
       * Metodo para probar la actualización normal de una Moto
-      *─────────────────────────────────────────────────────────────*/
+      */
      @Test
      @DisplayName("Modifica una moto Existente")
      void  shouldUpdateMoto(){
@@ -185,10 +175,10 @@ class MotoServiceIntegrationTest {
         assertEquals("Ya", moto1Updated.getMarca());
         assertEquals(100, moto1Updated.getPotencia());}
 
-        /**──────────────────────────────────────────────────────────────────────────────
+        /**
          * Metodo para probar la funcionalidad de actualizar en caso de error
          * Devuelve un error 400 ModificationSecurity al no cumplir con los requisitos
-         *──────────────────────────────────────────────────────────────────────────────*/
+         */
         @Test
         @DisplayName("Lanza un error 400 si no tiene ID")
         void shouldRejectUpdateWithoutId(){

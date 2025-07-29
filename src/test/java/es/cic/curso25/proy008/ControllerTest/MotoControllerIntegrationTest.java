@@ -36,8 +36,6 @@ public class MotoControllerIntegrationTest {
         private MotoRepository motoRepository;
 
         /**
-         * ───────────────────────────────────────────────────────────────
-         * 
          * @ObjectMapper es una clase del paquete FasterXml, que nos permite
          *               de una forma sencilla, convertir objetos java a constructos
          *               JSON
@@ -45,25 +43,27 @@ public class MotoControllerIntegrationTest {
          *               implementar la lectura/escritura de Json
          *               -JsonParser
          *               -JsonGenerator
-         *───────────────────────────────────────────────────────────────
          */
         @Autowired
         private ObjectMapper objectMapper;
 
-        // ──────────────────────────CRUD─────────────────────────────────────
-
-        /*
-         * =======================================================================
-         * 1) C R E A T E
-         * =====================================================================
+        /**
+         * ########################
+         * #       CRUD           #
+         * ########################
          */
 
-        /**───────────────────────────────────────────────────────────────
+        /**
+        * ########################
+        * #       CREATE         #
+        * ########################
+        */
+
+        /**
          * Test CREATE (Post)
          * Metodo para probar el Método de crear del controller
          * 
          * @throws Exception
-         *───────────────────────────────────────────────────────────────
          */
         @Test
         @DisplayName("POST /motos Guarda la moto y devuelve JSON ocn id")
@@ -85,10 +85,10 @@ public class MotoControllerIntegrationTest {
 
                 // EJECUCIÓN
                 MvcResult res = mockMvc.perform(post("/motos")
-                                .contentType("application/json")
-                                .content(motoJson))
-                                .andExpect(status().isOk())
-                                .andReturn();
+                        .contentType("application/json")
+                        .content(motoJson))
+                        .andExpect(status().isOk())
+                        .andReturn();
 
                 // COMPROBACIÓN
                 Moto body = objectMapper.readValue(res.getResponse().getContentAsString(), Moto.class);
@@ -98,14 +98,18 @@ public class MotoControllerIntegrationTest {
         }
 
         /**
-         * ───────────────────────────────────────────────────────────────────────
+        * ########################
+        * #        READ          #
+        * ########################
+        */
+
+        /**
          * READ (Get)
          * Test del metodo de Controller Get con el constructor que no necesita ID
          * SI existe -> Code 200
          * Si NO existe -> Code 404 + mensaje
          * 
          * @throws Exception
-         *────────────────────────────────────────────────────────────────────────
          */
         @Test
         void testGetSinID() throws Exception {
@@ -129,14 +133,12 @@ public class MotoControllerIntegrationTest {
         }
 
         /**
-         * ───────────────────────────────────────────────────────────────────────────
          * Test GET de /motos.
          * Comprueba que se devuelva un codigo 200 en caso de estar correcto,
          * y que en caso de no estarlo devuelva un error 400, acompañado de un string
          * definido en la clase de MotoException, con la ayuda del controller Advice
          * 
          * @throws Exception
-         *───────────────────────────────────────────────────────────────────────────
          */
         @Test
         @DisplayName("GET /motos/{id} devuelve 200 con objeto y 404 si no encuentra referencia")
@@ -173,11 +175,15 @@ public class MotoControllerIntegrationTest {
         }
 
         /**
-         * ───────────────────────────────────────────────────────────────────────────
+        * ########################
+        * # UPDATE #
+        * ########################
+        */
+
+        /**
          * Test PUT de /motos. Comprueba que se actualize una moto ya existente
          * 
          * @throws Exception
-         *───────────────────────────────────────────────────────────────────────────
          */
         @Test
         void shouldUpdateMoto() throws Exception {
@@ -212,11 +218,16 @@ public class MotoControllerIntegrationTest {
         }
 
         /**
-         * ───────────────────────────────────────────────────────────────────────────
+        * ########################
+        * # DELETE #
+        * ########################
+        */
+
+        /**
          * Metodo que comprueba la funcionalidad de borrar una moto en caso de que esta
          * exista
+         * 
          * @throws Exception
-         *───────────────────────────────────────────────────────────────────────────
          */
         @Test
         @DisplayName("DELETE /motos/{id} Elimina el registro")

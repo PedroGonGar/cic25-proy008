@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Service;
 
-import es.cic.curso25.proy008.model.Motorista;
 import es.cic.curso25.proy008.exception.ModificationSecurityException;
 import es.cic.curso25.proy008.exception.MotoException;
 import es.cic.curso25.proy008.model.Moto;

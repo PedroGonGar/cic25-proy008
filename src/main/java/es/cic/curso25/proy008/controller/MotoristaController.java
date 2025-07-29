@@ -1,7 +1,6 @@
 package es.cic.curso25.proy008.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,16 +57,10 @@ public class MotoristaController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Motorista> get (@PathVariable Long id){
-        Optional<Motorista> motorista = motoristaService.get(id);
+    public Motorista get (@PathVariable long id){
 
-        return motorista;
+        return motoristaService.get(id);
     }
-
-    // @GetMapping("/{id}")
-    // public Motorista get(@PathVariable long id) {
-    //     return motoristaService.get(id);
-    // }
 
     @GetMapping
     public List<Motorista> get() {
