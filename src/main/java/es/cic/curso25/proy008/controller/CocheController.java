@@ -94,6 +94,7 @@ public class CocheController {
      *         asignado.
      */
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Coche create(@RequestBody Coche coche) {
         if (coche.getId() != null) {
             throw new ModificationSecurityException("Intento de modificación en el create");
