@@ -10,6 +10,7 @@ import es.cic.curso25.proy008.exception.ModificationSecurityException;
 import es.cic.curso25.proy008.exception.CocheException;
 import es.cic.curso25.proy008.model.Coche;
 import es.cic.curso25.proy008.repository.CocheRepository;
+import jakarta.transaction.Transactional;
 
 /**
  * Servicio de negocio para la gestión de {@link Coche}.
@@ -28,6 +29,7 @@ import es.cic.curso25.proy008.repository.CocheRepository;
  * @since 1.0
  */
 @Service
+@Transactional
 public class CocheService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CocheService.class);
