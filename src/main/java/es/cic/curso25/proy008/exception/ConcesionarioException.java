@@ -1,10 +1,10 @@
 package es.cic.curso25.proy008.exception;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.http.HttpStatus;
 
 /**
- * Excepción que indica que no se ha encontrado un {@code Coche}
+ * Excepción que indica que no se ha encontrado un {@code Concesionario}
  * con el identificador proporcionado.
  * <p>
  * Esta clase extiende {@link RuntimeException} (unchecked) y
@@ -18,15 +18,15 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @since 1.0
  */
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class CocheException extends RuntimeException {
+public class ConcesionarioException extends RuntimeException {
 
     /**
-     * Construye una nueva {@code CocheException} con un mensaje
-     * que incluye el ID del coche no encontrado.
+     * Construye una nueva {@code ConcesionarioException} con un mensaje
+     * que incluye el ID del concesionario no encontrado.
      *
-     * @param id Identificador del coche que se intentó recuperar.
+     * @param id Identificador del concesionario que se intentó recuperar.
      */
-    public CocheException(long id) {
-        super("Coche con id " + id + " no encontrado.");
+    public ConcesionarioException(long id) {
+        super("Concesionario con id " + id + " no encontrado.");
     }
 }

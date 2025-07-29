@@ -2,6 +2,7 @@ package es.cic.curso25.proy008.ServiceTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.LocalTime;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -10,181 +11,200 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.cic.curso25.proy008.controller.ModificationSecurityException;
 import es.cic.curso25.proy008.exception.CocheException;
+import es.cic.curso25.proy008.exception.ModificationSecurityException;
 import es.cic.curso25.proy008.model.Coche;
+import es.cic.curso25.proy008.model.Concesionario;
 import es.cic.curso25.proy008.repository.CocheRepository;
+import es.cic.curso25.proy008.repository.ConcesionarioRepository;
 import es.cic.curso25.proy008.service.CocheService;
 
 /**
- * ╔═══════════════════════════════════════════════════════════════════════════╗
- * ║ 🔬  C O C H E S E R V I C E   –   I N T E G R A T I O N   T E S T S       ║
- * ╠═══════════════════════════════════════════════════════════════════════════╣
- * ║ ✔  @SpringBootTest   ▸ arranca todo Spring (Service, Repository, H2…).    ║
- * ║ ✔  @Transactional    ▸ cada test corre en su transacción ⇒ rollback.     ║
- * ║ ✔  No se usa MockMvc: aquí probamos la capa de servicio directamente.     ║
- * ║                                                                           ║
- * ║    Pruebas de integración para CocheService.                              ║
- * ║    Verifica la correcta interacción entre el servicio y la base de datos. ║
- * ║    Usa una base de datos H2 en memoria y transacciones que se revierten   ║
- * ║     después de cada test.                                                 ║
- * ╚═══════════════════════════════════════════════════════════════════════════╝
+ * Integración de pruebas para {@link CocheService}.
+ * <p>
+ * Utiliza {@code @SpringBootTest} para arrancar el contexto completo,
+ * incluyendo JPA, H2 en memoria y transacciones. Cada test se ejecuta
+ * dentro de su propia transacción, que se revierte al finalizar,
+ * gracias a {@code @Transactional}.
+ * </p>
+ * 
+ * @author Pedro González
+ * @version 1.0
+ * @since 1.0
  */
 @SpringBootTest
 @Transactional
 class CocheServiceIntegrationTest {
 
-    /*─────────────────────────────────────────────────────────────
-     * I N Y E C C I Ó N   D E   B E A N S
-     *───────────────────────────────────────────────────────────*/
     @Autowired
-    private CocheService cocheService;      // SUT (System Under Test)
+    private CocheService cocheService;
 
     @Autowired
-    private CocheRepository cocheRepository; // Para preparar/verificar datos
+    private CocheRepository cocheRepository;
 
-    /*=======================================================================
-     * 1)  C  R  E  A  T  E
-     *=====================================================================*/
+    @Autowired
+    private ConcesionarioRepository concesionarioRepository;
 
-    /** 
-     *  Comprueba un flujo de creación correcto
-    */
+    /**
+     * Verifica que crear un coche sin ID persiste la entidad
+     * y le asigna un identificador.
+     */
     @Test
-    @DisplayName("persiste un coche nuevo y asigna ID")
+    @DisplayName("Persiste un coche nuevo y asigna ID")
     void shouldCreateCoche() {
-        // ── Preparación 
-        Coche coche = new Coche("Tesla", 500); // id == null
+        // Dado un concesionario en BD
+        Concesionario cons = new Concesionario("ConsTest", 600123456, "Madrid",
+                LocalTime.of(9,0), LocalTime.of(18,0));
+        cons = concesionarioRepository.save(cons);
 
-        // ── Ejecución
-        Coche res = cocheService.create(coche);
+        // Cuando creo un coche con ese concesionario
+        Coche coche = new Coche("Tesla", 500, cons);
+        Coche resultado = cocheService.create(coche);
 
-        // ── Verificación 
-        assertNotNull(res.getId(), "El ID no debe ser null");
-        assertTrue(cocheRepository.existsById(res.getId()),
+        // Entonces debe tener ID y existir en BD
+        assertNotNull(resultado.getId(), "El ID no debe ser null");
+        assertTrue(cocheRepository.existsById(resultado.getId()),
                    "El coche debería existir en BD");
     }
 
     /**
-     * Intento de crear con id debería ser rechazado (regla de negocio)
-    */
+     * Verifica que intentar crear un coche con ID preexistente
+     * lanza {@link ModificationSecurityException}.
+     */
     @Test
-    @DisplayName("lanza ModificationSecurityException si viene con ID")
+    @DisplayName("Rechaza create() cuando el objeto trae ID")
     void shouldRejectCreateWithId() {
-        Coche coche = new Coche("Fake", 1);
-        coche.setId(99L);                              // id trucado
+        Concesionario cons = new Concesionario("ConsTest2", 600654321, "Valencia",
+                LocalTime.of(8,0), LocalTime.of(17,0));
+        cons = concesionarioRepository.save(cons);
 
-        /**
-         * assertThrows comprueba que se lanza la excepción esperada
-         * y, de paso, deja fallar el test si no se produce                 
-        */
+        Coche coche = new Coche("Fake", 1, cons);
+        coche.setId(99L);
+
         assertThrows(ModificationSecurityException.class,
-                     () -> cocheService.create(coche));
+                     () -> cocheService.create(coche),
+                     "Debe lanzar ModificationSecurityException");
     }
 
-    /*=======================================================================
-     * 2)  R  E  A  D
-     *=====================================================================*/
-
     /**
-     * get(id) devuelve el objeto cuando existe
-    */
+     * Verifica que get(id) retorna el coche cuando existe.
+     */
     @Test
-    @DisplayName("devuelve el coche existente")
+    @DisplayName("get(id) devuelve el coche existente")
     void shouldGetExisting() {
-        // Persistimos un coche para la prueba
-        Coche guardado = cocheRepository.save(new Coche("Ford", 150));
+        Concesionario cons = new Concesionario("ConsTest3", 600111222, "Sevilla",
+                LocalTime.of(7,30), LocalTime.of(16,30));
+        cons = concesionarioRepository.save(cons);
 
-        Coche res = cocheService.get(guardado.getId());
+        Coche guardado = cocheRepository.save(new Coche("Ford", 150, cons));
 
-        // Atributos deben coincidir exactamente
-        assertEquals("Ford", res.getMarca());
-        assertEquals(150,     res.getPotencia());
-        assertFalse(res.isEncendido(), "encendido debería ser false por defecto");
+        Coche encontrado = cocheService.get(guardado.getId());
+
+        assertEquals("Ford", encontrado.getMarca(), "Marca debe coincidir");
+        assertEquals(150, encontrado.getPotencia(), "Potencia debe coincidir");
+        assertFalse(encontrado.isEncendido(), "encendido debe ser false por defecto");
     }
 
     /**
-     * get(id) para un id inexistente ⇒ 404 de dominio (CocheException)
-    */
+     * Verifica que get(id) lanza {@link CocheException}
+     * cuando el ID no existe.
+     */
     @Test
-    @DisplayName("lanza CocheException si el ID no existe")
+    @DisplayName("get(id) lanza CocheException si no existe")
     void shouldThrowWhenNotFound() {
         assertThrows(CocheException.class,
-                     () -> cocheService.get(999L));
+                     () -> cocheService.get(999L),
+                     "Debe lanzar CocheException para ID inexistente");
     }
 
     /**
-     * get() sin parámetros ⇒ lista completa
-    */
+     * Verifica que get() devuelve la lista completa de coches.
+     */
     @Test
-    @DisplayName("get() sin args devuelve todos los coches")
+    @DisplayName("get() devuelve todos los coches")
     void shouldGetAll() {
-        cocheRepository.save(new Coche("BMW",      200));
-        cocheRepository.save(new Coche("Mercedes", 250));
+        Concesionario cons = new Concesionario("ConsTest4", 600333444, "Bilbao",
+                LocalTime.of(10,0), LocalTime.of(19,0));
+        cons = concesionarioRepository.save(cons);
+
+        cocheRepository.save(new Coche("BMW", 200, cons));
+        cocheRepository.save(new Coche("Mercedes", 250, cons));
 
         List<Coche> lista = cocheService.get();
 
-        assertEquals(2, lista.size(), "Debe haber 2 coches");
+        assertEquals(2, lista.size(), "Debe haber 2 coches en la lista");
     }
 
-    /*=======================================================================
-     * 3)  U  P  D  A  T  E
-     *=====================================================================*/
-
     /**
-     * Actualización correcta de un registro existente
-    */
+     * Verifica que update(coche) modifica correctamente
+     * un coche existente.
+     */
     @Test
-    @DisplayName("modifica un coche existente")
+    @DisplayName("update(coche) modifica un coche existente")
     void shouldUpdateCoche() {
-        Coche coche = cocheRepository.save(new Coche("Seat", 120));
+        Concesionario cons = new Concesionario("ConsTest5", 600777888, "Granada",
+                LocalTime.of(8,30), LocalTime.of(17,30));
+        cons = concesionarioRepository.save(cons);
 
-        coche.setMarca("Volkswagen"); 
+        Coche coche = cocheRepository.save(new Coche("Seat", 120, cons));
+        coche.setMarca("Volkswagen");
         coche.setPotencia(150);
 
         cocheService.update(coche);
 
         Coche actualizado = cocheRepository.findById(coche.getId()).orElseThrow();
-        assertEquals("Volkswagen", actualizado.getMarca());
-        assertEquals(150,          actualizado.getPotencia());
+        assertEquals("Volkswagen", actualizado.getMarca(), "Marca debe haber cambiado");
+        assertEquals(150, actualizado.getPotencia(), "Potencia debe haber cambiado");
     }
 
     /**
-     * update() sin id debe provocar 400 (ModificationSecurityException)
-    */
+     * Verifica que update(coche) sin ID lanza
+     * {@link ModificationSecurityException}.
+     */
     @Test
-    @DisplayName("lanza 400 si el coche no lleva ID")
+    @DisplayName("update() lanza 400 si no se envía ID")
     void shouldRejectUpdateWithoutId() {
-        Coche sinId = new Coche("N/A", 0);
-        
+        Concesionario cons = new Concesionario("ConsTest6", 600999000, "Zaragoza",
+                LocalTime.of(9,15), LocalTime.of(18,15));
+        cons = concesionarioRepository.save(cons);
+
+        Coche sinId = new Coche("N/A", 0, cons);
+
         assertThrows(ModificationSecurityException.class,
-                     () -> cocheService.update(sinId));
+                     () -> cocheService.update(sinId),
+                     "Debe lanzar ModificationSecurityException cuando id es null");
     }
 
     /**
-     * update() sobre id inexistente ⇒ 404 (CocheException)             
-    */
+     * Verifica que update(coche) sobre un ID inexistente
+     * lanza {@link CocheException}.
+     */
     @Test
-    @DisplayName("lanza 404 si el coche no existe en BD")
+    @DisplayName("update() lanza 404 si el coche no existe")
     void shouldRejectUpdateNonExisting() {
-        Coche fantasma = new Coche("Ghost", 1);
+        Concesionario cons = new Concesionario("ConsTest7", 601111222, "Bilbao",
+                LocalTime.of(7,45), LocalTime.of(16,45));
+        cons = concesionarioRepository.save(cons);
+
+        Coche fantasma = new Coche("Ghost", 1, cons);
         fantasma.setId(1234L);
 
         assertThrows(CocheException.class,
-                     () -> cocheService.update(fantasma));
+                     () -> cocheService.update(fantasma),
+                     "Debe lanzar CocheException para ID inexistente");
     }
 
-    /*=======================================================================
-     * 4)  D  E  L  E  T  E
-     *=====================================================================*/
-
     /**
-     * delete() elimina correctamente cuando el recurso existe 
-    */
+     * Verifica que delete(id) elimina un coche existente.
+     */
     @Test
-    @DisplayName("elimina un coche existente")
+    @DisplayName("delete(id) elimina un coche existente")
     void shouldDeleteCoche() {
-        Coche coche = cocheRepository.save(new Coche("Opel", 100));
+        Concesionario cons = new Concesionario("ConsTest8", 602222333, "Alicante",
+                LocalTime.of(8,0), LocalTime.of(17,0));
+        cons = concesionarioRepository.save(cons);
+
+        Coche coche = cocheRepository.save(new Coche("Opel", 100, cons));
         Long id = coche.getId();
 
         cocheService.delete(id);
@@ -194,12 +214,14 @@ class CocheServiceIntegrationTest {
     }
 
     /**
-     * delete() con id inexistente ⇒ 404 (CocheException)
-    */
+     * Verifica que delete(id) sobre ID inexistente lanza
+     * {@link CocheException}.
+     */
     @Test
-    @DisplayName("lanza 404 si el coche no existe")
+    @DisplayName("delete(id) lanza 404 si el coche no existe")
     void shouldRejectDeleteNonExisting() {
         assertThrows(CocheException.class,
-                     () -> cocheService.delete(888L));
+                     () -> cocheService.delete(888L),
+                     "Debe lanzar CocheException para ID inexistente");
     }
 }
